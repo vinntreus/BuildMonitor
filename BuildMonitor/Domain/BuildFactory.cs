@@ -9,5 +9,10 @@ namespace BuildMonitor.Domain
         {
             return new SolutionBuild(new BuildTimer(), solution);
         }
+
+        public IProjectBuild CreateProjectBuild(IProject project)
+        {
+            return new ProjectBuild(new BuildTimer(), project);
+        }
     }
 }

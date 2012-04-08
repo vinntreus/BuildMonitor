@@ -33,5 +33,10 @@ namespace BuildMonitor.UnitTests.Fakes
         public long MillisecondsElapsed { get; set; }
 
         public ISolution Solution { get; set; }
+
+        public void AddProject(IProjectBuild projectBuild)
+        {
+            
+        }
     }
 }

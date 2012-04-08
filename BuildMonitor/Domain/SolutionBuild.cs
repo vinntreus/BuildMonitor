@@ -1,43 +1,22 @@
-using System;
 using System.Linq;
 using System.Collections.Generic;
 
 namespace BuildMonitor.Domain
 {
-    public class SolutionBuild : ISolutionBuild
+    public class SolutionBuild : Build, ISolutionBuild
     {
-        private readonly ITimer timer;
-
-        public DateTime Started { get; private set; }
-        public long MillisecondsElapsed { get; private set; }
+        private readonly IList<IProjectBuild> projects;
         public ISolution Solution { get; private set; }
 
-        public SolutionBuild(ITimer timer, ISolution solution)
+        public void AddProject(IProjectBuild projectBuild)
         {
-            this.timer = timer;
+            projects.Add(projectBuild);
+        }
+
+        public SolutionBuild(ITimer timer, ISolution solution) : base(timer)
+        {
             Solution = solution;
-        }
-
-        public void Start()
-        {
-            if (IsRunning)
-            {
-                throw new InvalidOperationException("Solution build is running!");
-            }
-
-            Started = DateTime.Now;
-            timer.Start();
-        }
-
-        public void Stop()
-        {
-            timer.Stop();
-            MillisecondsElapsed = timer.MillisecondsElapsed;
-        }
-
-        public bool IsRunning
-        {
-            get { return timer.IsRunning; }
+            projects = new List<IProjectBuild>();
         }
 
         public object Data()
@@ -46,7 +25,8 @@ namespace BuildMonitor.Domain
             {
                 Start = Started,
                 Time = MillisecondsElapsed,
-                Solution
+                Solution,
+                Projects = projects.Select(p => p.Data())
             };
         }
     }

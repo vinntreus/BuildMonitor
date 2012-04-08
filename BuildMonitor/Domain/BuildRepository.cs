@@ -26,10 +26,12 @@ namespace BuildMonitor.Domain
         public void Save(IPersistable build)
         {
             using (var sw = new StreamWriter(pathToDb, true))
-            using (JsonWriter writer = new JsonTextWriter(sw))
             {
-                serializer.Serialize(writer, build.Data());
-            }   
+                using (JsonWriter writer = new JsonTextWriter(sw))
+                {
+                    serializer.Serialize(writer, build.Data());
+                }
+            }
         }
     }
 }

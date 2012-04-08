@@ -10,5 +10,10 @@ namespace BuildMonitor.UnitTests.Fakes
         {
             return Build;
         }
+
+        public IProjectBuild CreateProjectBuild(IProject project)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

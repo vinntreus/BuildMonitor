@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
@@ -15,7 +16,7 @@ namespace BuildMonitor
     [Guid(GuidList.guidBuildMonitorPkgString)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideAutoLoad("{f1536ef8-92ec-443c-9ed7-fdadf150da82}")]
-    public class BuildMonitorPackage : Package, IVsUpdateSolutionEvents2
+    sealed class BuildMonitorPackage : Package, IVsUpdateSolutionEvents2
     {
         private DTE dte;
         private readonly Monitor monitor;
@@ -29,6 +30,8 @@ namespace BuildMonitor
 
         public BuildMonitorPackage()
         {
+            Settings.CreateApplicationFolderIfNotExist();
+
             var factory = new BuildFactory();
             var repository = new BuildRepository(Settings.RepositoryPath);
 
@@ -51,16 +54,16 @@ namespace BuildMonitor
             events.Opened += Solution_Opened;
 
             PrintLine("Build monitor initialized");
-            PrintLine(string.Format("Path to persist data: {0}", Settings.RepositoryPath));
+            PrintLine("Path to persist data: {0}", Settings.RepositoryPath);
 
             monitor.SolutionBuildFinished = b =>
             {
-                Print(string.Format("[{0}] Time Elapsed: {1}ms  \t\t", b.SessionBuildCount, b.SolutionBuildTime));
-                PrintLine(string.Format("Session build time: {0}ms", b.SessionMillisecondsElapsed));
+                Print("[{0}] Time Elapsed: {1}ms  \t\t", b.SessionBuildCount, b.SolutionBuildTime);
+                PrintLine("Session build time: {0}ms\n", b.SessionMillisecondsElapsed);
             };
-        }
 
-        #region Solution open and close events
+            monitor.ProjectBuildFinished = b => PrintLine(" - {0}ms\t-- {1} --", b.MillisecondsElapsed, b.ProjectName);
+        }
 
         private void Solution_Opened()
         {
@@ -68,8 +71,6 @@ namespace BuildMonitor
             PrintLine("\nSolution loaded:  \t{0}", solution.Name);
             PrintLine("{0}", 60.Times("-"));
         }
-        
-        #endregion
 
         #region Print to output window pane
 
@@ -93,12 +94,9 @@ namespace BuildMonitor
             Print(format + '\n', args);
         }
 
-        private void Debug(string input, params object[] args)
-        {
-            Print("-- " + input + '\n', args);
-        }
-
         #endregion
+
+        #region Get objects from vs
 
         private DTE GetDTE()
         {
@@ -124,6 +122,20 @@ namespace BuildMonitor
             return (string)solutionName;
         }
 
+        private IProject GetProject(IVsHierarchy pHierProj)
+        {
+            object n;
+            pHierProj.GetProperty((uint)VSConstants.VSITEMID.Root, (int)__VSHPROPID.VSHPROPID_Name, out n);
+            var name = n as string;
+
+            Guid id;
+            vsSolution.GetGuidOfProject(pHierProj, out id);
+
+            return new Domain.Project { Name = name, Id = id };
+        }
+
+        #endregion
+
         int IVsUpdateSolutionEvents.UpdateSolution_Begin(ref int pfCancelUpdate)
         {
             // This method is called when the entire solution starts to build.
@@ -132,24 +144,29 @@ namespace BuildMonitor
             return VSConstants.S_OK;
         }
 
-
         int IVsUpdateSolutionEvents2.UpdateProjectCfg_Begin(IVsHierarchy pHierProj, IVsCfg pCfgProj, IVsCfg pCfgSln, uint dwAction, ref int pfCancel)
         {
             // This method is called when a specific project begins building.
+            var project = GetProject(pHierProj);
+            monitor.ProjectBuildStart(project);
+
             return VSConstants.S_OK;
         }
 
         int IVsUpdateSolutionEvents2.UpdateProjectCfg_Done(IVsHierarchy pHierProj, IVsCfg pCfgProj, IVsCfg pCfgSln, uint dwAction, int fSuccess, int fCancel)
         {
             // This method is called when a specific project finishes building.
+            var project = GetProject(pHierProj);
+            monitor.ProjectBuildStop(project);
+
             return VSConstants.S_OK;
         }
-
 
         int IVsUpdateSolutionEvents.UpdateSolution_Done(int fSucceeded, int fModified, int fCancelCommand)
         {
             // This method is called when the entire solution is done building.
             monitor.SolutionBuildStop();
+
             return VSConstants.S_OK;
         }
 
@@ -204,14 +221,6 @@ namespace BuildMonitor
             // Unadvise all events
             if (sbm != null && updateSolutionEventsCookie != 0)
                 sbm.UnadviseUpdateSolutionEvents(updateSolutionEventsCookie);
-        }
-    }
-
-    public static class IntExtensions
-    {
-        public static string Times(this int i, string s)
-        {
-            return string.Join("", Enumerable.Range(0, i).Select(d => s));
         }
     }
 }
