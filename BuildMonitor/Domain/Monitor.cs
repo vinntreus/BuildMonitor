@@ -20,7 +20,7 @@ namespace BuildMonitor.Domain
 
         public Action<SolutionBuildData> SolutionBuildFinished;
 
-        public void SolutionBuildStart(Solution solution)
+        public void SolutionBuildStart(ISolution solution)
         {
             if(solutionBuild != null && solutionBuild.IsRunning)
                 throw new InvalidOperationException("There is already a build running");

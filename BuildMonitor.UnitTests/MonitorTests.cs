@@ -89,7 +89,7 @@ namespace BuildMonitor.UnitTests
 
         private static Solution GetDefaultSolution()
         {
-            return new Solution(Guid.Empty, "a");
+            return new Solution{ Name = "a" };
         }
 
         [Test]

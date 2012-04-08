@@ -5,6 +5,6 @@ namespace BuildMonitor.Domain
 {
     public interface IBuildFactory
     {
-        ISolutionBuild CreateSolutionBuild(Solution solution);
+        ISolutionBuild CreateSolutionBuild(ISolution solution);
     }
 }

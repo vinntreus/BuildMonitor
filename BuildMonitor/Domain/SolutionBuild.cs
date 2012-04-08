@@ -10,9 +10,9 @@ namespace BuildMonitor.Domain
 
         public DateTime Started { get; private set; }
         public long MillisecondsElapsed { get; private set; }
-        public Solution Solution { get; private set; }
+        public ISolution Solution { get; private set; }
 
-        public SolutionBuild(ITimer timer, Solution solution)
+        public SolutionBuild(ITimer timer, ISolution solution)
         {
             this.timer = timer;
             Solution = solution;

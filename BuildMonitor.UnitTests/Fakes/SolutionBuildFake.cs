@@ -32,6 +32,6 @@ namespace BuildMonitor.UnitTests.Fakes
 
         public long MillisecondsElapsed { get; set; }
 
-        public Solution Solution { get; set; }
+        public ISolution Solution { get; set; }
     }
 }

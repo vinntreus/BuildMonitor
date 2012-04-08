@@ -4,15 +4,13 @@ using System.Collections.Generic;
 
 namespace BuildMonitor.Domain
 {
-    public struct Solution
+    public interface ISolution
     {
-        public readonly Guid Id;
-        public readonly string Name;
+        string Name { get; }
+    }
 
-        public Solution(Guid id, string name)
-        {
-            Id = id;
-            Name = name;
-        }
+    public class Solution : ISolution
+    {
+        public string Name { get; set; }
     }
 }

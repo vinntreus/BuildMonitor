@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
@@ -30,9 +29,6 @@ namespace BuildMonitor
 
         public BuildMonitorPackage()
         {
-            AddOptionKey("bm_solution_id");
-            Settings.CreateApplicationFolderIfNotExist();
-
             var factory = new BuildFactory();
             var repository = new BuildRepository(Settings.RepositoryPath);
 
@@ -49,43 +45,80 @@ namespace BuildMonitor
             {
                 sbm.AdviseUpdateSolutionEvents(this, out updateSolutionEventsCookie);
             }
-            var serviceContainer = this as IServiceContainer;
-            dte = serviceContainer.GetService(typeof(SDTE)) as DTE;
-            if (dte == null)
-                return;
 
             // Must hold a reference to the solution events object or the events wont fire, garbage collection related
-            events = dte.Events.SolutionEvents;
+            events = GetDTE().Events.SolutionEvents;
             events.Opened += Solution_Opened;
 
-            CreateOutputWindowPane();
-
-            outputWindowPane.OutputString("Build monitor initialized\n");
-            outputWindowPane.OutputString(string.Format("Path to persist data: {0}\n", Settings.RepositoryPath));
+            PrintLine("Build monitor initialized");
+            PrintLine(string.Format("Path to persist data: {0}", Settings.RepositoryPath));
 
             monitor.SolutionBuildFinished = b =>
             {
-                outputWindowPane.OutputString(string.Format("[{0}] Time Elapsed: {1}ms  \t\t", b.SessionBuildCount, b.SolutionBuildTime));
-                outputWindowPane.OutputString(string.Format("Session build time: {0}ms\n", b.SessionMillisecondsElapsed));
+                Print(string.Format("[{0}] Time Elapsed: {1}ms  \t\t", b.SessionBuildCount, b.SolutionBuildTime));
+                PrintLine(string.Format("Session build time: {0}ms", b.SessionMillisecondsElapsed));
             };
         }
 
-        private void CreateOutputWindowPane()
-        {
-            var outputWindow = (OutputWindow)dte.Windows.Item(Constants.vsWindowKindOutput).Object;
-            outputWindowPane = outputWindow.OutputWindowPanes.Add("Build monitor");
-        }
+        #region Solution open and close events
 
         private void Solution_Opened()
         {
-            vsSolution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution2;
-            solution = new Domain.Solution(Guid.NewGuid(), GetSolutionName());
-            outputWindowPane.OutputString(string.Format("\nSolution loaded:  \t{0}\n", solution.Name));
-            outputWindowPane.OutputString(string.Format("{0}\n", 60.Times("-")));
+            solution = new Domain.Solution {Name = GetSolutionName()};
+            PrintLine("\nSolution loaded:  \t{0}", solution.Name);
+            PrintLine("{0}", 60.Times("-"));
+        }
+        
+        #endregion
+
+        #region Print to output window pane
+
+        private OutputWindowPane GetOutputWindowPane()
+        {
+            if (outputWindowPane == null)
+            {
+                var outputWindow = (OutputWindow)GetDTE().Windows.Item(Constants.vsWindowKindOutput).Object;
+                outputWindowPane = outputWindow.OutputWindowPanes.Add("Build monitor");
+            }
+            return outputWindowPane;
+        }
+
+        private void Print(string format, params object[] args)
+        {
+            GetOutputWindowPane().OutputString(string.Format(format, args));
+        }
+
+        private void PrintLine(string format, params object[] args)
+        {
+            Print(format + '\n', args);
+        }
+
+        private void Debug(string input, params object[] args)
+        {
+            Print("-- " + input + '\n', args);
+        }
+
+        #endregion
+
+        private DTE GetDTE()
+        {
+            if (dte == null)
+            {
+                var serviceContainer = this as IServiceContainer;
+                dte = serviceContainer.GetService(typeof(SDTE)) as DTE;
+            }
+            return dte;
+        }
+
+        private void SetVsSolution()
+        {
+            if(vsSolution == null)
+                vsSolution = ServiceProvider.GlobalProvider.GetService(typeof (SVsSolution)) as IVsSolution2;
         }
 
         private string GetSolutionName()
         {
+            SetVsSolution();
             object solutionName;
             vsSolution.GetProperty((int)__VSPROPID.VSPROPID_SolutionBaseName, out solutionName);
             return (string)solutionName;
@@ -120,6 +153,7 @@ namespace BuildMonitor
             return VSConstants.S_OK;
         }
 
+        #region empty impl. of solution events interface
 
         int IVsUpdateSolutionEvents2.UpdateSolution_StartUpdate(ref int pfCancelUpdate)
         {
@@ -161,6 +195,7 @@ namespace BuildMonitor
             return VSConstants.S_OK;
         }
 
+        #endregion
 
         protected override void Dispose(bool disposing)
         {
