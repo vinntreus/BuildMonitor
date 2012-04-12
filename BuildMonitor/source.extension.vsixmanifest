@@ -3,7 +3,7 @@
   <Identifier Id="04bd76e5-b9bd-4772-aca9-60a1dc767583">
     <Name>BuildMonitor</Name>
     <Author>Daniel Vinntreus</Author>
-    <Version>1.0</Version>
+    <Version>1.0.0.1</Version>
     <Description xml:space="preserve">Monitors builds and outputs time for each project and solution build. The total time of current session is also outputed. 
 
 All data is stored in json locally. Next plan is to push the data to a service which aggregates and visualize the data.</Description>

@@ -25,11 +25,29 @@ namespace BuildMonitor.Domain
 
         public void Save(IPersistable build)
         {
-            using (var sw = new StreamWriter(pathToDb, true))
+            using(var fileStream = new FileStream(pathToDb, FileMode.Open, FileAccess.ReadWrite))
             {
-                using (JsonWriter writer = new JsonTextWriter(sw))
+                if (fileStream.Length > 0) //remove ] if we have content in file
                 {
-                    serializer.Serialize(writer, build.Data());
+                    fileStream.Seek(-1, SeekOrigin.End);
+                }
+                using (var sw = new StreamWriter(fileStream)) //add item to array
+                {
+                    using (JsonWriter writer = new JsonTextWriter(sw))
+                    {
+                        if (sw.BaseStream.Position == 0) //begin array if this is first item
+                        {
+                            writer.WriteRawValue("[");
+                        }
+                        else //we are adding item to existing array
+                        {
+                            writer.WriteRawValue(",");
+                        }
+
+                        serializer.Serialize(writer, build.Data());
+
+                        writer.WriteRawValue("]");
+                    }
                 }
             }
         }

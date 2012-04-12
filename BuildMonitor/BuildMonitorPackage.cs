@@ -42,6 +42,8 @@ namespace BuildMonitor
         {
             base.Initialize();
 
+            Settings.VerifyJsonData(PrintLine);
+
             // Get solution build manager
             sbm = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager2;
             if (sbm != null)
