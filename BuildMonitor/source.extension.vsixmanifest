@@ -12,7 +12,7 @@ All data is stored in json locally. Next plan is to push the data to a service w
     <License>license.txt</License>
     <InstalledByMsi>false</InstalledByMsi>
     <SupportedProducts>
-      <VisualStudio Version="10.0">
+      <VisualStudio Version="11.0">
         <Edition>Pro</Edition>
       </VisualStudio>
     </SupportedProducts>
