@@ -19,6 +19,7 @@ namespace BuildMonitorPackage
     {
         private DTE dte;
         private readonly Monitor monitor;
+        private readonly DataAdjusterWithLogging dataAdjuster;
         private BuildMonitor.Domain.Solution solution;
 
         private IVsSolutionBuildManager2 sbm;
@@ -35,13 +36,15 @@ namespace BuildMonitorPackage
             var repository = new BuildRepository(Settings.RepositoryPath);
 
             monitor = new Monitor(factory, repository);
+            dataAdjuster = new DataAdjusterWithLogging(repository, PrintLine);
         }
 
         protected override void Initialize()
         {
             base.Initialize();
 
-            DataAdjuster.VerifyJsonData(PrintLine);
+            //if invalid data, adjust it
+            dataAdjuster.Adjust();
 
             // Get solution build manager
             sbm = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager2;
@@ -92,7 +95,7 @@ namespace BuildMonitorPackage
 
         private void PrintLine(string format, params object[] args)
         {
-            Print(format + '\n', args);
+            Print(format + Environment.NewLine, args);
         }
 
         #endregion

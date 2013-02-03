@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using BuildMonitor.Domain;
 using BuildMonitor.UnitTests.Fakes;
 using NUnit.Framework;
 
-namespace BuildMonitor.UnitTests
+namespace BuildMonitor.UnitTests.Domain
 {
     [TestFixture]
     public class SolutionBuildTests

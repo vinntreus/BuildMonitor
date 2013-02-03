@@ -1,8 +1,8 @@
-﻿using BuildMonitor.Domain;
+using BuildMonitor.Domain;
 using BuildMonitor.UnitTests.Fakes;
 using NUnit.Framework;
 
-namespace BuildMonitor.UnitTests
+namespace BuildMonitor.UnitTests.Domain
 {
     public class MonitorTests
     {

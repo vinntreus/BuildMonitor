@@ -45,7 +45,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataVerifyer.cs" />
     <Compile Include="Domain\Build.cs" />
     <Compile Include="Domain\BuildFactory.cs" />
     <Compile Include="Domain\BuildRepository.cs" />
@@ -63,6 +62,9 @@
     <Compile Include="Domain\SolutionBuild.cs" />
     <Compile Include="Domain\SolutionBuildData.cs" />
     <Compile Include="IntExtensions.cs" />
+    <Compile Include="LocalData\DataAdjuster.cs" />
+    <Compile Include="LocalData\InvalidData.cs" />
+    <Compile Include="LocalData\RawBuildData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
