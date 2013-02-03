@@ -1,7 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -19,7 +17,7 @@ namespace BuildMonitor.Domain
 
             this.pathToDb = pathToDb;
             serializer = new JsonSerializer();
-            serializer.Converters.Add(new JavaScriptDateTimeConverter());
+            serializer.Converters.Add(new IsoDateTimeConverter());
             serializer.NullValueHandling = NullValueHandling.Ignore;
         }
 

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BuildMonitor.Domain;
+﻿using BuildMonitor.Domain;
 using BuildMonitor.UnitTests.Fakes;
 using NUnit.Framework;
 
 namespace BuildMonitor.UnitTests
 {
-    public class MonitorTests : Spec
+    public class MonitorTests
     {
         private BuildFactoryFake buildFactoryFake;
         private SolutionBuildFake solutionBuildFake;
@@ -31,7 +28,7 @@ namespace BuildMonitor.UnitTests
 
             monitor.SolutionBuildStart(solution);
 
-            Expect(solutionBuildFake.StartedCount).ToBe(1);
+            Assert.That(solutionBuildFake.StartedCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -52,7 +49,7 @@ namespace BuildMonitor.UnitTests
             monitor.SolutionBuildStart(solution);
             monitor.SolutionBuildStop();
 
-            Expect(solutionBuildFake.StopCount).ToBe(1);
+            Assert.That(solutionBuildFake.StopCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -60,8 +57,8 @@ namespace BuildMonitor.UnitTests
         {
             monitor.SolutionBuildStop();
 
-            Expect(solutionBuildFake.StopCount).ToBe(0);
-            Expect(buildRepositoryFake.SaveCount).ToBe(0);
+            Assert.That(solutionBuildFake.StopCount, Is.EqualTo(0));
+            Assert.That(buildRepositoryFake.SaveCount, Is.EqualTo(0));
         }
 
         [Test]
@@ -73,7 +70,7 @@ namespace BuildMonitor.UnitTests
             monitor.SolutionBuildStop();
             monitor.SolutionBuildStop();
 
-            Expect(solutionBuildFake.StopCount).ToBe(1);
+            Assert.That(solutionBuildFake.StopCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -84,7 +81,7 @@ namespace BuildMonitor.UnitTests
             monitor.SolutionBuildStart(solution);
             monitor.SolutionBuildStop();
 
-            Expect(buildRepositoryFake.SaveCount).ToBe(1);
+            Assert.That(buildRepositoryFake.SaveCount, Is.EqualTo(1));
         }
 
         private static Solution GetDefaultSolution()
@@ -96,38 +93,38 @@ namespace BuildMonitor.UnitTests
         public void SolutionBuildStop_WithSolution_RaisesSolutionBuildFinished()
         {
             var finished = false;
-            monitor.SolutionBuildFinished = (d) => finished = true;
+            monitor.SolutionBuildFinished = d => finished = true;
 
             monitor.SolutionBuildStart(GetDefaultSolution());
             monitor.SolutionBuildStop();
 
-            Expect(finished).ToBe(true);
+            Assert.That(finished, Is.True);
         }
 
         [Test]
         public void SolutionBuildStop_WithSolution_CountsBuilds()
         {
             var count = 0;
-            monitor.SolutionBuildFinished = (buildData) => count = buildData.SessionBuildCount;
+            monitor.SolutionBuildFinished = buildData => count = buildData.SessionBuildCount;
 
             monitor.SolutionBuildStart(GetDefaultSolution());
             monitor.SolutionBuildStop();
 
-            Expect(count).ToBe(1);
+            Assert.That(count, Is.EqualTo(1));
         }
 
         [Test]
         public void SolutionBuildStop_WithSolutionTwice_CountsBuilds()
         {
             var count = 0;
-            monitor.SolutionBuildFinished = (buildData) => count = buildData.SessionBuildCount;
+            monitor.SolutionBuildFinished = buildData => count = buildData.SessionBuildCount;
 
             monitor.SolutionBuildStart(GetDefaultSolution());
             monitor.SolutionBuildStop();
             monitor.SolutionBuildStart(GetDefaultSolution());
             monitor.SolutionBuildStop();
 
-            Expect(count).ToBe(2);
+            Assert.That(count, Is.EqualTo(2));
         }
     }
 }

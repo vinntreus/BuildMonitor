@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
+using BuildMonitor;
 using BuildMonitor.Domain;
 using EnvDTE;
 using Microsoft.VisualStudio;
@@ -10,17 +9,17 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
 using Constants = EnvDTE.Constants;
 
-namespace BuildMonitor
+namespace BuildMonitorPackage
 {
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
-    [Guid(GuidList.guidBuildMonitorPkgString)]
+    [Guid(GuidList.guidBuildMonitorPackagePkgString)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideAutoLoad("{f1536ef8-92ec-443c-9ed7-fdadf150da82}")]
     sealed class BuildMonitorPackage : Package, IVsUpdateSolutionEvents2
     {
         private DTE dte;
         private readonly Monitor monitor;
-        private Domain.Solution solution;
+        private BuildMonitor.Domain.Solution solution;
 
         private IVsSolutionBuildManager2 sbm;
         private uint updateSolutionEventsCookie;
@@ -42,7 +41,7 @@ namespace BuildMonitor
         {
             base.Initialize();
 
-            Settings.VerifyJsonData(PrintLine);
+            DataAdjuster.VerifyJsonData(PrintLine);
 
             // Get solution build manager
             sbm = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager2;
@@ -69,7 +68,7 @@ namespace BuildMonitor
 
         private void Solution_Opened()
         {
-            solution = new Domain.Solution {Name = GetSolutionName()};
+            solution = new BuildMonitor.Domain.Solution { Name = GetSolutionName() };
             PrintLine("\nSolution loaded:  \t{0}", solution.Name);
             PrintLine("{0}", 60.Times("-"));
         }
@@ -112,8 +111,8 @@ namespace BuildMonitor
 
         private void SetVsSolution()
         {
-            if(vsSolution == null)
-                vsSolution = ServiceProvider.GlobalProvider.GetService(typeof (SVsSolution)) as IVsSolution2;
+            if (vsSolution == null)
+                vsSolution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution2;
         }
 
         private string GetSolutionName()
@@ -133,7 +132,7 @@ namespace BuildMonitor
             Guid id;
             vsSolution.GetGuidOfProject(pHierProj, out id);
 
-            return new Domain.Project { Name = name, Id = id };
+            return new BuildMonitor.Domain.Project { Name = name, Id = id };
         }
 
         #endregion
