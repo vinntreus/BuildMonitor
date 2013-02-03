@@ -22,6 +22,7 @@ namespace BuildMonitor.UnitTests.LocalData
 
         [TestCase("[{}]")]
         [TestCase("[{}, {}]")]
+        [TestCase("[\r\n{}, {}\r\n]")]
         public void IsValidData_ArrayOfObjectsInJson_IsValid(string jsonText)
         {
             var result = GetRawBuildData(jsonText).IsValidData;

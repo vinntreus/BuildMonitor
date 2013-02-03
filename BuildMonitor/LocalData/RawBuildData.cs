@@ -17,10 +17,10 @@ namespace BuildMonitor.LocalData
             {
                 if (string.IsNullOrEmpty(rawData)) return true;
 
-                var jsonText = rawData.Replace(" ", "");
+                var jsonText = rawData.Replace(" ", "").Replace(Environment.NewLine, "");
 
-                return jsonText.StartsWith("[{") 
-                        && jsonText.EndsWith("}]") 
+                return jsonText.StartsWith("[{")
+                        && jsonText.EndsWith("}]")
                         && jsonText.IndexOf("}{", StringComparison.InvariantCulture) == -1
                         && jsonText.IndexOf(":newDate(", StringComparison.InvariantCulture) == -1;
             }
