@@ -16,7 +16,7 @@ namespace BuildMonitor.Domain
                 throw new ArgumentNullException("pathToDb");
 
             Source = pathToDb;
-            serializer = new JsonSerializer();
+            serializer = new JsonSerializer {Formatting = Formatting.Indented};
             serializer.Converters.Add(new IsoDateTimeConverter());
             serializer.NullValueHandling = NullValueHandling.Ignore;
         }
