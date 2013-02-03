@@ -2,11 +2,16 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
     <Identity Id="d350a95e-5d09-4b5d-9075-0a5f7bb6b1dc" Version="1.1" Language="en-US" Publisher="Daniel Vinntreus" />
-    <DisplayName>BuildMonitor</DisplayName>
-    <Description>Monitor builds in Visual Studio.</Description>
+    <DisplayName>Build Monitor</DisplayName>
+    <Description xml:space="preserve">Measure how long it takes to build your solution and individual projects in Visual Studio.</Description>
+    <License>license.txt</License>
+    <Tags>Build, Monitor, Build Monitor, Build times</Tags>
   </Metadata>
   <Installation InstalledByMsi="false">
-    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="11.0" />
+    <InstallationTarget Version="[11.0,12.0)" Id="Microsoft.VisualStudio.Premium" />
+    <InstallationTarget Version="[11.0,12.0)" Id="Microsoft.VisualStudio.Pro" />
+    <InstallationTarget Version="[11.0,12.0)" Id="Microsoft.VisualStudio.Ultimate" />
+    <InstallationTarget Version="[11.0,12.0)" Id="Microsoft.VisualStudio.IntegratedShell" />
   </Installation>
   <Dependencies>
     <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5" />
