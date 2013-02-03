@@ -4,6 +4,7 @@
     <Identity Id="d350a95e-5d09-4b5d-9075-0a5f7bb6b1dc" Version="1.1" Language="en-US" Publisher="Daniel Vinntreus" />
     <DisplayName>Build Monitor</DisplayName>
     <Description xml:space="preserve">Measure how long it takes to build your solution and individual projects in Visual Studio.</Description>
+    <MoreInfo>http://visualstudiogallery.msdn.microsoft.com/b0c87e47-f4ee-4935-9a59-f2c81ce692ab</MoreInfo>
     <License>license.txt</License>
     <Tags>Build, Monitor, Build Monitor, Build times</Tags>
   </Metadata>
