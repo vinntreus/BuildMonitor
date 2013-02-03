@@ -1,7 +1,6 @@
 using System;
-using System.IO;
-using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -9,7 +8,6 @@ namespace BuildMonitor.Domain
 {
     public class BuildRepository : IBuildRepository
     {
-        private readonly string pathToDb;
         private readonly JsonSerializer serializer;
 
         public BuildRepository(string pathToDb)
@@ -17,15 +15,17 @@ namespace BuildMonitor.Domain
             if(string.IsNullOrEmpty(pathToDb))
                 throw new ArgumentNullException("pathToDb");
 
-            this.pathToDb = pathToDb;
-            serializer = new JsonSerializer();
-            serializer.Converters.Add(new JavaScriptDateTimeConverter());
+            Source = pathToDb;
+            serializer = new JsonSerializer {Formatting = Formatting.Indented};
+            serializer.Converters.Add(new IsoDateTimeConverter());
             serializer.NullValueHandling = NullValueHandling.Ignore;
         }
 
+        public string Source { get; private set; }
+
         public void Save(IPersistable build)
         {
-            using(var fileStream = new FileStream(pathToDb, FileMode.Open, FileAccess.ReadWrite))
+            using (var fileStream = new FileStream(Source, FileMode.Open, FileAccess.ReadWrite))
             {
                 if (fileStream.Length > 0) //remove ] if we have content in file
                 {
@@ -50,6 +50,21 @@ namespace BuildMonitor.Domain
                     }
                 }
             }
+        }
+
+        public void Save(string data)
+        {
+            var d = JsonConvert.DeserializeObject<IEnumerable<object>>(data);
+            var jsonSerializerSettings = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
+            jsonSerializerSettings.Converters.Add(new IsoDateTimeConverter());
+            var s = JsonConvert.SerializeObject(d, Formatting.Indented, jsonSerializerSettings);
+
+            File.WriteAllText(Source, s);
+        }
+
+        public string GetRawData()
+        {
+            return File.ReadAllText(Source);
         }
     }
 }

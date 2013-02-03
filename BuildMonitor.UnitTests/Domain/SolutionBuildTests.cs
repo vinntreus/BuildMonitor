@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using BuildMonitor.Domain;
 using BuildMonitor.UnitTests.Fakes;
 using NUnit.Framework;
 
-namespace BuildMonitor.UnitTests
+namespace BuildMonitor.UnitTests.Domain
 {
     [TestFixture]
-    public class SolutionBuildTests : Spec
+    public class SolutionBuildTests
     {
         private TimerFake timerFake;
         private SolutionBuild solutionBuild;
@@ -31,7 +31,7 @@ namespace BuildMonitor.UnitTests
         {
             solutionBuild.Start();
             
-            Expect(timerFake.StartedCount).ToBe(1);
+            Assert.That(timerFake.StartedCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace BuildMonitor.UnitTests
 
             var isRunning = solutionBuild.IsRunning;
 
-            Expect(isRunning).ToBe(false);
+            Assert.That(isRunning, Is.False);
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace BuildMonitor.UnitTests
 
             var isRunning = solutionBuild.IsRunning;
 
-            Expect(isRunning).ToBe(true);
+            Assert.That(isRunning, Is.True);
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace BuildMonitor.UnitTests
         {
             solutionBuild.Stop();
 
-            Expect(timerFake.StopCount).ToBe(1);
+            Assert.That(timerFake.StopCount, Is.EqualTo(1));
         }
 
 
@@ -78,7 +78,7 @@ namespace BuildMonitor.UnitTests
 
             solutionBuild.Stop();
 
-            Expect(solutionBuild.MillisecondsElapsed).ToBe(1);
+            Assert.That(solutionBuild.MillisecondsElapsed, Is.EqualTo(1));
         }
     }
 }

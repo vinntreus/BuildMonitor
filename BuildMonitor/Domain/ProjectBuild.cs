@@ -1,6 +1,3 @@
-using System.Linq;
-using System.Collections.Generic;
-
 namespace BuildMonitor.Domain
 {
     public class ProjectBuild : Build, IProjectBuild
@@ -15,11 +12,11 @@ namespace BuildMonitor.Domain
         public object Data()
         {
             return new
-                       {
-                           Start = Started,
-                           Time = MillisecondsElapsed,
-                           Project
-                       };
+            {
+                Start = Started,
+                Time = MillisecondsElapsed,
+                Project
+            };
         }
     }
 }
