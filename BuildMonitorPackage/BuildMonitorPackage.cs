@@ -3,6 +3,7 @@ using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using BuildMonitor;
 using BuildMonitor.Domain;
+using BuildMonitor.UI;
 using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -62,11 +63,11 @@ namespace BuildMonitorPackage
 
             monitor.SolutionBuildFinished = b =>
             {
-                Print("[{0}] Time Elapsed: {1}ms  \t\t", b.SessionBuildCount, b.SolutionBuildTime);
-                PrintLine("Session build time: {0}ms\n", b.SessionMillisecondsElapsed);
+                Print("[{0}] Time Elapsed: {1} \t\t", b.SessionBuildCount, b.SolutionBuildTime.ToTime());
+                PrintLine("Session build time: {0}\n", b.SessionMillisecondsElapsed.ToTime());
             };
 
-            monitor.ProjectBuildFinished = b => PrintLine(" - {0}ms\t-- {1} --", b.MillisecondsElapsed, b.ProjectName);
+            monitor.ProjectBuildFinished = b => PrintLine(" - {0}\t-- {1} --", b.MillisecondsElapsed.ToTime(), b.ProjectName);
         }
 
         private void Solution_Opened()

@@ -48,6 +48,7 @@
     <Compile Include="Fakes\SolutionBuildFake.cs" />
     <Compile Include="Fakes\TimerFake.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\TimeDisplayTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BuildMonitor\BuildMonitor.csproj">
