@@ -11,7 +11,7 @@ It measures solution total build time and each project built.
 After every build the data is also saved to a file on disk (see output-window for path) as json.
 
 ## Notes for contributors
-- Install the [Visual Studio 2012 SDK](http://www.microsoft.com/en-us/download/details.aspx?id=30668) to get all the references.
+- Install the [Visual Studio 2013 SDK](http://www.microsoft.com/en-us/download/confirmation.aspx?id=40758) to get references needed to be able to open the projects.
 
 ## Features and bugs
 If you find a bug or desire some feature, please create an issue here in Github.
