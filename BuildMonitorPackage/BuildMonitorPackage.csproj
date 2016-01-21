@@ -232,6 +232,7 @@
   <ItemGroup>
     <VSCTCompile Include="BuildMonitorPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
+      <SubType>Designer</SubType>
     </VSCTCompile>
     <Content Include="license.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
