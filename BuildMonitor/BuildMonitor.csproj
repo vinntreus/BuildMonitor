@@ -35,7 +35,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>key.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>cedd.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
@@ -71,6 +71,7 @@
     <Compile Include="UI\TimePresenter.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cedd.snk" />
     <None Include="key.pfx" />
     <None Include="packages.config" />
   </ItemGroup>

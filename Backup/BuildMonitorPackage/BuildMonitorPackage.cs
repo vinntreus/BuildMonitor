@@ -16,7 +16,6 @@ namespace BuildMonitorPackage
     [Guid(GuidList.guidBuildMonitorPackagePkgString)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideAutoLoad("{f1536ef8-92ec-443c-9ed7-fdadf150da82}")]
-    [ProvideMenuResource("Menus.ctmenu", 1)]
     sealed class BuildMonitorPackage : Package, IVsUpdateSolutionEvents2
     {
         private DTE dte;
@@ -69,7 +68,6 @@ namespace BuildMonitorPackage
             };
 
             monitor.ProjectBuildFinished = b => PrintLine(" - {0}\t-- {1} --", b.MillisecondsElapsed.ToTime(), b.ProjectName);
-            AnalyseBuildTimesCommand.Initialize(this);
         }
 
         private void Solution_Opened()
