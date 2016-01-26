@@ -62,9 +62,15 @@
     <Compile Include="Domain\SolutionBuild.cs" />
     <Compile Include="Domain\SolutionBuildData.cs" />
     <Compile Include="IntExtensions.cs" />
+    <Compile Include="LocalData\AnalyseBuildTimes.cs" />
+    <Compile Include="LocalData\BuildTimes.cs" />
     <Compile Include="LocalData\DataAdjuster.cs" />
+    <Compile Include="LocalData\IBuildTimes.cs" />
     <Compile Include="LocalData\InvalidData.cs" />
+    <Compile Include="LocalData\JSONSolutionName.cs" />
+    <Compile Include="LocalData\JSONSolutionTimes.cs" />
     <Compile Include="LocalData\RawBuildData.cs" />
+    <Compile Include="LocalData\SolutionMonth.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\LongExtensions.cs" />
     <Compile Include="UI\Time.cs" />
