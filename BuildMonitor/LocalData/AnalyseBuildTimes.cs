@@ -42,7 +42,7 @@ namespace BuildMonitor.LocalData
 
         private void UpdateSolutionMonths(JSONSolutionTimes jsonSolutionBuildTime, Dictionary<SolutionMonth, TimeSpan> solutionMonths)
         {
-            var solutionMonth = new SolutionMonth() { Solution = jsonSolutionBuildTime.Name, Month = jsonSolutionBuildTime.Start.Month, Year = jsonSolutionBuildTime.Start.Year };
+            var solutionMonth = new SolutionMonth( solution: jsonSolutionBuildTime.Name, month: jsonSolutionBuildTime.Start.Month, year: jsonSolutionBuildTime.Start.Year );
 
             if (solutionMonths.ContainsKey(solutionMonth))
                 solutionMonths[solutionMonth] = solutionMonths[solutionMonth] + TimeSpan.FromMilliseconds(jsonSolutionBuildTime.Time);

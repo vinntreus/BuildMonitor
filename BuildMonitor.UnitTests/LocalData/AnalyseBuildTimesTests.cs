@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using BuildMonitor.LocalData;
+using System.Collections;
 
 namespace BuildMonitor.UnitTests.LocalData
 {
@@ -15,22 +16,43 @@ namespace BuildMonitor.UnitTests.LocalData
         public int BuildTimeInMilliseconds { get; set; }
     }
 
-    internal struct SolutionMonth
-    {
-        public string Solution { get; set; }
-        public int Year { get; set; }
-        public int Month { get; set; }
-    }
-
     [TestFixture]
     public class AnalyseBuildTimesTests
     {
+        [Test]
+        public void AvailableMonths()
+        {
+            var solutionbuilds = CreateBuilds(
+                CreateBuild(buildDateTime: JANUARY1())
+                , CreateBuild(buildDateTime: JANUARY31())
+                , CreateBuild(buildDateTime: MARCH())
+                );
+
+            var json = CreateBuildsJSON(solutionbuilds);
+
+            var buildTimes = new AnalyseBuildTimes().Calculate(json);
+
+            var expected = CreateSolutionMonths(CreateSolutionMonth(JANUARY1()), CreateSolutionMonth(MARCH()));
+
+            CollectionAssert.AreEqual(expected, buildTimes.SolutionMonths);
+        }
+
+        private IEnumerable<SolutionMonth> CreateSolutionMonths(params SolutionMonth[]  solutionMonths)
+        {
+            return solutionMonths;
+        }
+
+        private SolutionMonth CreateSolutionMonth(DateTime dateTime)
+        {
+            return new SolutionMonth("", dateTime.Year, dateTime.Month);
+        }
+
         [TestCase(19366)]
         [TestCase(1)]
         [TestCase(395)]
         public void OneBuildTimeTotal(int singleBuildTimeInMilliseconds)
         {
-            var json = CreateBuildsJSON(CreateBuildJSON(singleBuildTimeInMilliseconds));
+            var json = CreateBuildsJSON(CreateBuildJSON(CreateBuild(buildTimeInMilliseconds: singleBuildTimeInMilliseconds)));
 
             var buildTimes = new AnalyseBuildTimes().Calculate(json);
 
@@ -42,7 +64,7 @@ namespace BuildMonitor.UnitTests.LocalData
         [TestCase(543, 0, 34534567)]
         public void MultipleBuildsSameSolution(params int[] buildTimeInMilliseconds)
         {
-            var json = CreateBuildsJSON(buildTimeInMilliseconds.Select(b => CreateBuildJSON(timeInMilliseconds: b)));
+            var json = CreateBuildsJSON(buildTimeInMilliseconds.Select(b => CreateBuild(buildTimeInMilliseconds: b)));
 
             var buildTimes = new AnalyseBuildTimes().Calculate(json);
 
@@ -60,7 +82,7 @@ namespace BuildMonitor.UnitTests.LocalData
                 , CreateBuild("Cedd", 83468)
                 );
 
-            var json = CreateBuildsJSON(solutionbuilds.Select(b => CreateBuildJSON(timeInMilliseconds: b.BuildTimeInMilliseconds, solutionName: b.Solution)));
+            var json = CreateBuildsJSON(solutionbuilds);
 
             var buildTimes = new AnalyseBuildTimes().Calculate(json);
 
@@ -79,13 +101,13 @@ namespace BuildMonitor.UnitTests.LocalData
                 , CreateBuild("Cedd", 83468, MARCH())
                 );
 
-            var json = CreateBuildsJSON(solutionbuilds.Select(b => CreateBuildJSON(timeInMilliseconds: b.BuildTimeInMilliseconds, solutionName: b.Solution, start: b.BuildDateTime)));
+            var json = CreateBuildsJSON(solutionbuilds);
 
             //act
             var buildTimes = new AnalyseBuildTimes().Calculate(json); 
 
             // assert
-            var solutionMonths = solutionbuilds.Select(s => new SolutionMonth() { Solution = s.Solution, Month = s.BuildDateTime.Month, Year = s.BuildDateTime.Year }).Distinct();
+            var solutionMonths = solutionbuilds.Select(s => new SolutionMonth(solution: s.Solution, month: s.BuildDateTime.Month, year: s.BuildDateTime.Year)).Distinct();
             foreach (var solutionMonth in solutionMonths)
                 Assert.That(buildTimes.SolutionMonth(solutionMonth.Solution, solutionMonth.Month, solutionMonth.Year) == TimeSpan.FromMilliseconds(solutionbuilds.Where(s => s.Solution == solutionMonth.Solution && s.BuildDateTime.Month == solutionMonth.Month && s.BuildDateTime.Year == solutionMonth.Year).Sum(s => s.BuildTimeInMilliseconds)));
         }
@@ -100,13 +122,18 @@ namespace BuildMonitor.UnitTests.LocalData
             return "[" + string.Join("\n,\n", builds) + "]";
         }
 
-        private static string CreateBuildJSON(int timeInMilliseconds, string solutionName = "blah", DateTime start = new DateTime())
+        private static string CreateBuildsJSON(IEnumerable<SolutionBuildTime> solutionbuilds)
+        {
+            return CreateBuildsJSON(solutionbuilds.Select(b => CreateBuildJSON(b)));
+        }
+
+        private static string CreateBuildJSON(SolutionBuildTime build)
         {
             return @"{
-    'Start': '" + start.ToString() + @"',
-    'Time': " + timeInMilliseconds.ToString() + @",
+    'Start': '" + build.BuildDateTime.ToString() + @"',
+    'Time': " + build.BuildTimeInMilliseconds.ToString() + @",
     'Solution': {
-                'Name': '" + solutionName + @"'
+                'Name': '" + build.Solution + @"'
                 },
   'Projects': [{
       'Start': '2016-01-21T18:53:33.6172723+00:00',
@@ -132,9 +159,9 @@ namespace BuildMonitor.UnitTests.LocalData
             return solutionBuildTimes;
         }
 
-        private static SolutionBuildTime CreateBuild(string solution, int buildTimeInMilliseconds, DateTime buildDateTime = new DateTime())
+        private static SolutionBuildTime CreateBuild(string solution = "", int buildTimeInMilliseconds = 0, DateTime buildDateTime = new DateTime())
         {
-            return new SolutionBuildTime() { Solution = "BuildMonitor", BuildTimeInMilliseconds = 1, BuildDateTime = buildDateTime };
+            return new SolutionBuildTime() { Solution = solution, BuildTimeInMilliseconds = buildTimeInMilliseconds, BuildDateTime = buildDateTime };
         }
 
         private DateTime MARCH()

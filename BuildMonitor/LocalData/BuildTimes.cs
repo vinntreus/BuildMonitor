@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,14 +11,22 @@ namespace BuildMonitor.LocalData
     {
         public TimeSpan Total { get; protected set; }
 
+        public IEnumerable<SolutionMonth> SolutionMonths
+        {
+            get
+            {
+                return this.solutionMonths.Keys;
+            }
+        }
+
         public TimeSpan SolutionMonth(string solution, int month, int year)
         {
-            return solutionMonths[new SolutionMonth() { Solution = solution, Month = month, Year = year }];
+            return this.solutionMonths[new SolutionMonth(solution: solution, month: month, year: year )];
         }
 
         public TimeSpan Solution(string solution)
         {
-            return solutions[solution];
+            return this.solutions[solution];
         }
 
         private Dictionary<SolutionMonth, TimeSpan> solutionMonths;
