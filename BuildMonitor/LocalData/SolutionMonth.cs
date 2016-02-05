@@ -12,7 +12,7 @@ namespace BuildMonitor.LocalData
         private readonly int year;
         private readonly int month;
 
-        public SolutionMonth(string solution, int year, int month)
+        public SolutionMonth(string solution = "", int year = 0, int month = 0)
         {
             this.solution = solution;
             this.year = year;

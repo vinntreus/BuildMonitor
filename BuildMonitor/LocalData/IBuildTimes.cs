@@ -10,7 +10,8 @@ namespace BuildMonitor.LocalData
     public interface IBuildTimes
     {
         TimeSpan Total { get; }
-        IEnumerable<SolutionMonth> SolutionMonths { get; }
+        IEnumerable<SolutionMonth> AvailableMonths { get; }
+        IEnumerable<string> AvailableSolutions { get; }
 
         TimeSpan SolutionMonth(string solution, int month, int year);
 

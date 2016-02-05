@@ -34,17 +34,28 @@ namespace BuildMonitor.UnitTests.LocalData
 
             var expected = CreateSolutionMonths(CreateSolutionMonth(JANUARY1()), CreateSolutionMonth(MARCH()));
 
-            CollectionAssert.AreEqual(expected, buildTimes.SolutionMonths);
+            CollectionAssert.AreEqual(expected, buildTimes.AvailableMonths);
         }
 
-        private IEnumerable<SolutionMonth> CreateSolutionMonths(params SolutionMonth[]  solutionMonths)
+        [Test]
+        public void AvailableSolutions()
         {
-            return solutionMonths;
-        }
+            const string CEDD = "Cedd";
+            const string BUILDMONITOR = "BuildMonitor";
 
-        private SolutionMonth CreateSolutionMonth(DateTime dateTime)
-        {
-            return new SolutionMonth("", dateTime.Year, dateTime.Month);
+            var solutionbuilds = CreateBuilds(
+                CreateBuild(solution: CEDD)
+                , CreateBuild(solution: BUILDMONITOR)
+                , CreateBuild(solution: CEDD)
+                );
+
+            var json = CreateBuildsJSON(solutionbuilds);
+
+            var buildTimes = new AnalyseBuildTimes().Calculate(json);
+
+            var expected = CreateSolutionMonths(new SolutionMonth(solution: CEDD), new SolutionMonth(solution: BUILDMONITOR));
+
+            CollectionAssert.AreEqual(expected, buildTimes.AvailableSolutions);
         }
 
         [TestCase(19366)]
@@ -162,6 +173,16 @@ namespace BuildMonitor.UnitTests.LocalData
         private static SolutionBuildTime CreateBuild(string solution = "", int buildTimeInMilliseconds = 0, DateTime buildDateTime = new DateTime())
         {
             return new SolutionBuildTime() { Solution = solution, BuildTimeInMilliseconds = buildTimeInMilliseconds, BuildDateTime = buildDateTime };
+        }
+
+        private IEnumerable<SolutionMonth> CreateSolutionMonths(params SolutionMonth[] solutionMonths)
+        {
+            return solutionMonths;
+        }
+
+        private SolutionMonth CreateSolutionMonth(DateTime dateTime)
+        {
+            return new SolutionMonth("", dateTime.Year, dateTime.Month);
         }
 
         private DateTime MARCH()

@@ -11,11 +11,19 @@ namespace BuildMonitor.LocalData
     {
         public TimeSpan Total { get; protected set; }
 
-        public IEnumerable<SolutionMonth> SolutionMonths
+        public IEnumerable<SolutionMonth> AvailableMonths
         {
             get
             {
                 return this.solutionMonths.Keys;
+            }
+        }
+
+        public IEnumerable<string> AvailableSolutions
+        {
+            get
+            {
+                return this.solutions.Keys;
             }
         }
 
