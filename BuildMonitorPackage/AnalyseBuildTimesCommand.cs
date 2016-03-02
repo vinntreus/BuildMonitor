@@ -9,6 +9,14 @@ using System.ComponentModel.Design;
 using System.Globalization;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using System.IO;
+using BuildMonitor.LocalData;
+using System.Data;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace BuildMonitorPackage
 {
@@ -93,6 +101,43 @@ namespace BuildMonitorPackage
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
+            
+            IBuildTimes buildTimes = new BuildMonitor.LocalData.AnalyseBuildTimes().Calculate(File.ReadAllText(Settings.RepositoryPath));
+
+            var data = new List<ExpandoObject>();
+
+            foreach (var solution in buildTimes.AvailableSolutions)
+            {
+                dynamic row = new ExpandoObject();
+                var p = row as IDictionary<String, object>;
+                foreach (var month in buildTimes.AvailableMonths)
+                {
+                    p[$"{month.Month} {month.Year}"] = buildTimes.SolutionMonth(solution, month.Month, month.Year);
+                }
+
+                data.Add(row);
+            }
+            var form = new AnalyseBuildTimes();
+
+            form.dataGrid.ItemsSource = data;
+
+            var rows = data.OfType<IDictionary<string, object>>();
+            var columns = rows.SelectMany(d => d.Keys).Distinct(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string text in columns)
+            {
+                // now set up a column and binding for each property
+                var column = new DataGridTextColumn
+                {
+                    Header = text,
+                    Binding = new Binding(text)
+                };
+
+                form.dataGrid.Columns.Add(column);
+            }
+
+            form.ShowDialog();
+
             string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
             string title = "AnalyseBuildTimesCommand";
 

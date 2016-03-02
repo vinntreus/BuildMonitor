@@ -42,6 +42,7 @@
     <Compile Include="Domain\MonitorTests.cs" />
     <Compile Include="Domain\SolutionBuildTests.cs" />
     <Compile Include="LocalData\AnalyseBuildTimesTests.cs" />
+    <Compile Include="LocalData\BuildTimesTests.cs" />
     <Compile Include="LocalData\DataAdjusterTests.cs" />
     <Compile Include="LocalData\RawBuildDataTests.cs" />
     <Compile Include="Fakes\BuildFactoryFake.cs" />

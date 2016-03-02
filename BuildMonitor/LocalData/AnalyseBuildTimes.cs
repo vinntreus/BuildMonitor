@@ -29,7 +29,7 @@ namespace BuildMonitor.LocalData
             var jsonSerializerSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             jsonSerializerSettings.Converters.Add(new IsoDateTimeConverter());
             var jsonSolutionBuildTimes = JsonConvert.DeserializeObject<IEnumerable<JSONSolutionTimes>>(json, jsonSerializerSettings);
-            return jsonSolutionBuildTimes;
+            return jsonSolutionBuildTimes.Where(b => b.Name != null);
         }
 
         private void UpdateSolutions(JSONSolutionTimes jsonSolutionBuildTime, Dictionary<string, TimeSpan> solutions)

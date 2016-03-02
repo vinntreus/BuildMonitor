@@ -20,6 +20,22 @@ namespace BuildMonitor.UnitTests.LocalData
     public class AnalyseBuildTimesTests
     {
         [Test]
+        public void IgnoreNullSolutionNames()
+        {
+            const string json =
+@"[{
+    'Start': '2016-01-22T18:53:33.6172723+00:00',
+    'Time': 2,
+    'Solution': {
+                }
+}]";
+
+            var buildTimes = new AnalyseBuildTimes().Calculate(json);
+
+            Assert.AreEqual(0, buildTimes.AvailableSolutions.Count());
+        }
+
+        [Test]
         public void AvailableMonths()
         {
             var solutionbuilds = CreateBuilds(
@@ -53,7 +69,7 @@ namespace BuildMonitor.UnitTests.LocalData
 
             var buildTimes = new AnalyseBuildTimes().Calculate(json);
 
-            var expected = CreateSolutionMonths(new SolutionMonth(solution: CEDD), new SolutionMonth(solution: BUILDMONITOR));
+            var expected = new List<string>() { CEDD, BUILDMONITOR };
 
             CollectionAssert.AreEqual(expected, buildTimes.AvailableSolutions);
         }

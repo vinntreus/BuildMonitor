@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BuildMonitor.LocalData
 {
-    internal class BuildTimes : IBuildTimes
+    public class BuildTimes : IBuildTimes
     {
         public TimeSpan Total { get; protected set; }
 
@@ -29,7 +29,9 @@ namespace BuildMonitor.LocalData
 
         public TimeSpan SolutionMonth(string solution, int month, int year)
         {
-            return this.solutionMonths[new SolutionMonth(solution: solution, month: month, year: year )];
+            var solutionMonth = new SolutionMonth(solution: solution, month: month, year: year);
+
+            return this.solutionMonths.ContainsKey(solutionMonth) ? this.solutionMonths[solutionMonth] : TimeSpan.FromSeconds(0);
         }
 
         public TimeSpan Solution(string solution)

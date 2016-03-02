@@ -14,7 +14,7 @@ namespace BuildMonitor.LocalData
 
         public SolutionMonth(string solution = "", int year = 0, int month = 0)
         {
-            this.solution = solution;
+            this.solution = solution ?? "";
             this.year = year;
             this.month = month;
         }
