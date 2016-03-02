@@ -28,7 +28,7 @@ namespace BuildMonitorPackage
         public AnalyseBuildTimes(IEnumerable<ExpandoObject> solutionMonthTable) : this()
         {
             // you would have thought it would be easier to show a grid of data in 2016 ...
-            solutionMonthDataGrid.ItemsSource = solutionMonthTable;
+            SolutionMonthDataGrid.ItemsSource = solutionMonthTable;
 
             var rows = solutionMonthTable.OfType<IDictionary<string, object>>();
             var columns = rows.SelectMany(d => d.Keys).Distinct(StringComparer.OrdinalIgnoreCase);
@@ -42,9 +42,14 @@ namespace BuildMonitorPackage
                     Binding = new Binding(text)
                 };
 
-                solutionMonthDataGrid.Columns.Add(column);
+                SolutionMonthDataGrid.Columns.Add(column);
             }
 
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

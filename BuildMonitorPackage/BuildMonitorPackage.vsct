@@ -56,7 +56,7 @@
         <Parent guid="guidBuildMonitorPackageCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
-          <ButtonText>Invoke AnalyseBuildTimesCommand</ButtonText>
+          <ButtonText>Show Solution Build Times</ButtonText>
         </Strings>
       </Button>
     </Buttons>

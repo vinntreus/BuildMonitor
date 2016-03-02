@@ -12,6 +12,7 @@ namespace BuildMonitor.LocalData
     {
         IEnumerable<ExpandoObject> SolutionMonthTable();
 
+        // these are only used in testing, but I can't think of a good way to take them out of the interface and keep the rest of the code ok.
         TimeSpan Total { get; }
         IEnumerable<SolutionMonth> AvailableMonths { get; }
         IEnumerable<string> AvailableSolutions { get; }

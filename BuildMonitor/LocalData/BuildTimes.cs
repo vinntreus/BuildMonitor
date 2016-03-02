@@ -62,9 +62,9 @@ namespace BuildMonitor.LocalData
                     var buildTime = SolutionMonth(solution, month.Month, month.Year);
 
                     if (buildTime == TimeSpan.FromSeconds(0))
-                        p[$"{month.Month} {month.Year}"] = "";
+                        p[$"{month.Month:mmm} {month.Year}"] = "";
                     else
-                        p[$"{month.Month} {month.Year}"] = $@"{buildTime:hh\:mm\:ss}";
+                        p[$"{month.Month:mmm} {month.Year}"] = $@"{buildTime:hh\:mm\:ss}";
                 }
 
                 table.Add(row);
