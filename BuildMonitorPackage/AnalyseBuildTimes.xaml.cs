@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,28 @@ namespace BuildMonitorPackage
         public AnalyseBuildTimes()
         {
             InitializeComponent();
+        }
+
+        public AnalyseBuildTimes(IEnumerable<ExpandoObject> solutionMonthTable) : this()
+        {
+            // you would have thought it would be easier to show a grid of data in 2016 ...
+            solutionMonthDataGrid.ItemsSource = solutionMonthTable;
+
+            var rows = solutionMonthTable.OfType<IDictionary<string, object>>();
+            var columns = rows.SelectMany(d => d.Keys).Distinct(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string text in columns)
+            {
+                // now set up a column and binding for each property
+                var column = new DataGridTextColumn
+                {
+                    Header = text,
+                    Binding = new Binding(text)
+                };
+
+                solutionMonthDataGrid.Columns.Add(column);
+            }
+
         }
     }
 }

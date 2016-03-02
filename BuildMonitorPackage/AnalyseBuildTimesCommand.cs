@@ -101,54 +101,9 @@ namespace BuildMonitorPackage
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            
-            IBuildTimes buildTimes = new BuildMonitor.LocalData.AnalyseBuildTimes().Calculate(File.ReadAllText(Settings.RepositoryPath));
-
-            var data = new List<ExpandoObject>();
-
-            foreach (var solution in buildTimes.AvailableSolutions)
-            {
-                dynamic row = new ExpandoObject();
-                var p = row as IDictionary<String, object>;
-                foreach (var month in buildTimes.AvailableMonths)
-                {
-                    p[$"{month.Month} {month.Year}"] = buildTimes.SolutionMonth(solution, month.Month, month.Year);
-                }
-
-                data.Add(row);
-            }
-            var form = new AnalyseBuildTimes();
-
-            form.dataGrid.ItemsSource = data;
-
-            var rows = data.OfType<IDictionary<string, object>>();
-            var columns = rows.SelectMany(d => d.Keys).Distinct(StringComparer.OrdinalIgnoreCase);
-
-            foreach (string text in columns)
-            {
-                // now set up a column and binding for each property
-                var column = new DataGridTextColumn
-                {
-                    Header = text,
-                    Binding = new Binding(text)
-                };
-
-                form.dataGrid.Columns.Add(column);
-            }
+            var form = new AnalyseBuildTimes(new BuildMonitor.LocalData.AnalyseBuildTimes().Calculate(File.ReadAllText(Settings.RepositoryPath)).SolutionMonthTable());
 
             form.ShowDialog();
-
-            string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
-            string title = "AnalyseBuildTimesCommand";
-
-            // Show a message box to prove we were here
-            VsShellUtilities.ShowMessageBox(
-                this.ServiceProvider,
-                message,
-                title,
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
         }
     }
 }
