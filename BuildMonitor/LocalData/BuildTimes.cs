@@ -62,15 +62,20 @@ namespace BuildMonitor.LocalData
                     var buildTime = SolutionMonth(solution, month.Month, month.Year);
 
                     if (buildTime == TimeSpan.FromSeconds(0))
-                        p[$"{month.Month:mmm} {month.Year}"] = "";
+                        p[FormatMonth(month)] = "";
                     else
-                        p[$"{month.Month:mmm} {month.Year}"] = $@"{buildTime:hh\:mm\:ss}";
+                        p[FormatMonth(month)] = $@"{buildTime:hh\:mm\:ss}";
                 }
 
                 table.Add(row);
            }
 
            return table;
+        }
+
+        private static string FormatMonth(SolutionMonth month)
+        {
+            return $"{new DateTime(2000, month.Month, 1):MMM} {month.Year}";
         }
 
         private Dictionary<SolutionMonth, TimeSpan> solutionMonths;
