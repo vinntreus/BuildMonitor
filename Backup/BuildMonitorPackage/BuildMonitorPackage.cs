@@ -9,9 +9,6 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
 using Constants = EnvDTE.Constants;
-using System.Data.SqlClient;
-using System.Data;
-using System.Security.Principal;
 
 namespace BuildMonitorPackage
 {
@@ -60,7 +57,6 @@ namespace BuildMonitorPackage
             // Must hold a reference to the solution events object or the events wont fire, garbage collection related
             events = GetDTE().Events.SolutionEvents;
             events.Opened += Solution_Opened;
-            GetDTE().Events.BuildEvents.OnBuildBegin += Build_Begin;
 
             PrintLine("Build monitor initialized");
             PrintLine("Path to persist data: {0}", Settings.RepositoryPath);
@@ -69,30 +65,9 @@ namespace BuildMonitorPackage
             {
                 Print("[{0}] Time Elapsed: {1} \t\t", b.SessionBuildCount, b.SolutionBuildTime.ToTime());
                 PrintLine("Session build time: {0}\n", b.SessionMillisecondsElapsed.ToTime());
-                System.Threading.Tasks.Task.Factory.StartNew(() => SaveToDatabase(b));
             };
 
             monitor.ProjectBuildFinished = b => PrintLine(" - {0}\t-- {1} --", b.MillisecondsElapsed.ToTime(), b.ProjectName);
-        }
-
-        private void SaveToDatabase(SolutionBuildData b)
-        {
-            try
-            {
-                var conn = new SqlConnection("Server=kl-sql-001;DataBase=RESSoftware;Integrated Security=SSPI");
-                conn.Open();
-                SqlCommand cmd = new SqlCommand("dbo.AddBuildTime", conn);
-                cmd.Parameters.AddWithValue("IsRebuildAll", b.IsRebuildAll ? 1 : 0);
-                cmd.Parameters.AddWithValue("SolutionName", b.SolutionName);
-                cmd.Parameters.AddWithValue("BuildDateTime", DateTime.Now);
-                cmd.Parameters.AddWithValue("TimeInMilliseconds", b.SolutionBuildTime);
-                cmd.Parameters.AddWithValue("NT4Name", WindowsIdentity.GetCurrent().Name);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.ExecuteNonQuery();
-                if (conn != null) conn.Close();
-            }
-            catch // ignore exceptions, its not a big problem if we can't log the build time
-            { }
         }
 
         private void Solution_Opened()
@@ -165,12 +140,6 @@ namespace BuildMonitorPackage
         }
 
         #endregion
-
-        // this event is called on build begin and let's us find out whether it is a full rebuild or a partial
-        private void Build_Begin(vsBuildScope scope, vsBuildAction action)
-        {
-            monitor.SetIsRebuildAll(action == vsBuildAction.vsBuildActionRebuildAll);
-        }
 
         int IVsUpdateSolutionEvents.UpdateSolution_Begin(ref int pfCancelUpdate)
         {

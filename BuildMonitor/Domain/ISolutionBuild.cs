@@ -6,6 +6,7 @@ namespace BuildMonitor.Domain
     {
         DateTime Started { get; }
         ISolution Solution { get;  }
+
         void AddProject(IProjectBuild projectBuild);
     }
 }

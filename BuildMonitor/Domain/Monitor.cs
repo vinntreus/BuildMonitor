@@ -27,6 +27,12 @@ namespace BuildMonitor.Domain
 
         public Action<SolutionBuildData> SolutionBuildFinished;
         public Action<ProjectBuildData> ProjectBuildFinished;
+        private bool _isRebuildAll = false;
+
+        public void SetIsRebuildAll(bool isRebuildAll)
+        {
+            _isRebuildAll = isRebuildAll;
+        }
 
         public void SolutionBuildStart(ISolution solution)
         {
@@ -45,7 +51,7 @@ namespace BuildMonitor.Domain
                 solutionBuild.Stop();
                 buildRepository.Save(solutionBuild);
 
-                SolutionBuildFinished(new SolutionBuildData(solutionBuild, ++buildCount, sessionMillisecondsElapsed += solutionBuild.MillisecondsElapsed));
+                SolutionBuildFinished(new SolutionBuildData(solutionBuild, _isRebuildAll, ++buildCount, sessionMillisecondsElapsed += solutionBuild.MillisecondsElapsed));
             }
         }
 
