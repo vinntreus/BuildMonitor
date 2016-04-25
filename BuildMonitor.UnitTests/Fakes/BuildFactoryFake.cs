@@ -6,7 +6,7 @@ namespace BuildMonitor.UnitTests.Fakes
     {
         public ISolutionBuild Build { get; set; }
 
-        public ISolutionBuild CreateSolutionBuild(ISolution solution, bool isRebuildAll)
+        public ISolutionBuild CreateSolutionBuild(ISolution solution)
         {
             return Build;
         }
