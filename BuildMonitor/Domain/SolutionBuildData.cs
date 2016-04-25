@@ -2,10 +2,9 @@ namespace BuildMonitor.Domain
 {
     public class SolutionBuildData
     {
-        public SolutionBuildData(ISolutionBuild solutionBuild, bool isRebuildAll, int sessionBuildCount, long sessionMillisecondsElapsed)
+        public SolutionBuildData(ISolutionBuild solutionBuild, int sessionBuildCount, long sessionMillisecondsElapsed)
         {
             SolutionBuild = solutionBuild;
-            IsRebuildAll = isRebuildAll;
             SessionBuildCount = sessionBuildCount;
             SessionMillisecondsElapsed = sessionMillisecondsElapsed;
         }
@@ -20,8 +19,7 @@ namespace BuildMonitor.Domain
             get { return SolutionBuild.MillisecondsElapsed; }
         }
 
-        private ISolutionBuild SolutionBuild { get; set; }
-        public bool IsRebuildAll { get; } 
+        public ISolutionBuild SolutionBuild { get; }
         public int SessionBuildCount { get; private set; }
         public long SessionMillisecondsElapsed { get; private set; }
     }

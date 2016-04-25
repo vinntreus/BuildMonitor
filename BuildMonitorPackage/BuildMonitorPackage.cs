@@ -69,6 +69,7 @@ namespace BuildMonitorPackage
             {
                 Print("[{0}] Time Elapsed: {1} \t\t", b.SessionBuildCount, b.SolutionBuildTime.ToTime());
                 PrintLine("Session build time: {0}\n", b.SessionMillisecondsElapsed.ToTime());
+                PrintLine("Rebuild All: {0}\n", b.SolutionBuild.IsRebuildAll);
                 System.Threading.Tasks.Task.Factory.StartNew(() => SaveToDatabase(b));
             };
 
@@ -82,7 +83,7 @@ namespace BuildMonitorPackage
                 var conn = new SqlConnection("Server=kl-sql-001;DataBase=RESSoftware;Integrated Security=SSPI");
                 conn.Open();
                 SqlCommand cmd = new SqlCommand("dbo.AddBuildTime", conn);
-                cmd.Parameters.AddWithValue("IsRebuildAll", b.IsRebuildAll ? 1 : 0);
+                cmd.Parameters.AddWithValue("IsRebuildAll", b.SolutionBuild.IsRebuildAll ? 1 : 0);
                 cmd.Parameters.AddWithValue("SolutionName", b.SolutionName);
                 cmd.Parameters.AddWithValue("BuildDateTime", DateTime.Now);
                 cmd.Parameters.AddWithValue("TimeInMilliseconds", b.SolutionBuildTime);

@@ -32,6 +32,14 @@ namespace BuildMonitor.UnitTests.Fakes
 
         public ISolution Solution { get; set; }
 
+        public bool IsRebuildAll
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public void AddProject(IProjectBuild projectBuild)
         {
             

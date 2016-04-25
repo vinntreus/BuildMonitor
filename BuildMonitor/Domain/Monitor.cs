@@ -49,9 +49,10 @@ namespace BuildMonitor.Domain
             if (solutionBuild != null && solutionBuild.IsRunning)
             {
                 solutionBuild.Stop();
+                solutionBuild.IsRebuildAll = _isRebuildAll;
                 buildRepository.Save(solutionBuild);
 
-                SolutionBuildFinished(new SolutionBuildData(solutionBuild, _isRebuildAll, ++buildCount, sessionMillisecondsElapsed += solutionBuild.MillisecondsElapsed));
+                SolutionBuildFinished(new SolutionBuildData(solutionBuild, ++buildCount, sessionMillisecondsElapsed += solutionBuild.MillisecondsElapsed));
             }
         }
 

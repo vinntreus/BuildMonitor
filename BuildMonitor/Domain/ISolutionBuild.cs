@@ -6,6 +6,7 @@ namespace BuildMonitor.Domain
     {
         DateTime Started { get; }
         ISolution Solution { get;  }
+        bool IsRebuildAll { get; set; } // bit of a shame to make this mutable
 
         void AddProject(IProjectBuild projectBuild);
     }
