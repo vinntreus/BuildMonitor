@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BuildMonitorPackage"
         mc:Ignorable="d"
-        Title="AnalyseBuildTimes" Height="500" Width="756">
+        Title="AnalyseBuildTimes" Height="500" Width="756" MinHeight="300" MinWidth="400">
     <Grid Margin="12,0,11,11">
         <Label x:Name="SolutionMonthDataGridLabel" Content="Total Monthly Build Time Per Solution" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <DataGrid x:Name="SolutionMonthDataGrid" Margin="10,41"/>
-        <Button x:Name="Ok" Content="Button" HorizontalAlignment="Left" Margin="10,0,0,14" VerticalAlignment="Bottom" Width="75" Click="button_Click"/>
+        <DataGrid x:Name="SolutionMonthDataGrid" Margin="10,41" />
+        <Button x:Name="Ok" Content="Ok" HorizontalAlignment="Left" Margin="10,0,0,14" VerticalAlignment="Bottom" Width="75" Click="button_Click"/>
     </Grid>
 </Window>
