@@ -17,7 +17,7 @@ namespace BuildMonitor.UnitTests.Domain
             timerFake = new TimerFake();
             solutionBuild = new SolutionBuild(timerFake, new Solution());
         }
-
+        
         [Test]
         public void Start_NotRunning_SetsStartedToNow()
         {

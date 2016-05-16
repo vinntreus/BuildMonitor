@@ -19,7 +19,7 @@ namespace BuildMonitor.Domain
             get { return SolutionBuild.MillisecondsElapsed; }
         }
 
-        private ISolutionBuild SolutionBuild { get; set; }
+        public ISolutionBuild SolutionBuild { get; }
         public int SessionBuildCount { get; private set; }
         public long SessionMillisecondsElapsed { get; private set; }
     }

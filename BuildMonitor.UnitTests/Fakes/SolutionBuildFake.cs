@@ -32,6 +32,8 @@ namespace BuildMonitor.UnitTests.Fakes
 
         public ISolution Solution { get; set; }
 
+        public bool IsRebuildAll { get; set; }
+
         public void AddProject(IProjectBuild projectBuild)
         {
             
