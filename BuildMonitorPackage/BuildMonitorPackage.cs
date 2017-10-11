@@ -82,7 +82,7 @@ namespace BuildMonitorPackage
         {
             try
             {
-                var conn = new SqlConnection("Server=kl-sql-001;DataBase=RESSoftware;Integrated Security=SSPI");
+                var conn = new SqlConnection("Server=kl-sql-005;DataBase=RESSoftware;Integrated Security=SSPI");
                 conn.Open();
                 SqlCommand cmd = new SqlCommand("dbo.AddBuildTime", conn);
                 cmd.Parameters.AddWithValue("IsRebuildAll", b.SolutionBuild.IsRebuildAll ? 1 : 0);
