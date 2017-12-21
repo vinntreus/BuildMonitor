@@ -62,7 +62,6 @@
     <Compile Include="Domain\Solution.cs" />
     <Compile Include="Domain\SolutionBuild.cs" />
     <Compile Include="Domain\SolutionBuildData.cs" />
-    <Compile Include="IntExtensions.cs" />
     <Compile Include="LocalData\AnalyseBuildTimes.cs" />
     <Compile Include="LocalData\BuildTimes.cs" />
     <Compile Include="LocalData\DataAdjuster.cs" />

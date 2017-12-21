@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using BuildMonitor;
@@ -32,13 +31,15 @@ namespace BuildMonitorPackage
 
         private IVsSolutionBuildManager2 sbm;
         private uint updateSolutionEventsCookie;
-        private OutputWindowPane outputWindowPane;
         private SolutionEvents events;
         private IVsSolution2 vsSolution;
+        private OutputWindowWrapper output;
 
         protected override void Initialize()
         {
             base.Initialize();
+
+            output = new OutputWindowWrapper(this);
 
             SettingsManager settingsManager = new ShellSettingsManager(ServiceProvider.GlobalProvider);
             WritableSettingsStore settingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
@@ -48,7 +49,7 @@ namespace BuildMonitorPackage
             var repository = new BuildRepository(Settings.Instance.RepositoryPath);
 
             monitor = new Monitor(factory, repository);
-            dataAdjuster = new DataAdjusterWithLogging(repository, PrintLine);
+            dataAdjuster = new DataAdjusterWithLogging(repository, output.WriteLine);
 
             //if invalid data, adjust it
             dataAdjuster.Adjust();
@@ -66,18 +67,18 @@ namespace BuildMonitorPackage
             events.Opened += Solution_Opened;
             GetDTE().Events.BuildEvents.OnBuildBegin += Build_Begin;
 
-            PrintLine("Build monitor initialized");
-            PrintLine("Path to persist data: {0}", Settings.Instance.RepositoryPath);
+            output.WriteLine("Build monitor initialized");
+            output.WriteLine("Path to persist data: {0}", Settings.Instance.RepositoryPath);
 
             monitor.SolutionBuildFinished = b =>
             {
-                Print("[{0}] Time Elapsed: {1} \t\t", b.SessionBuildCount, b.SolutionBuildTime.ToTime());
-                PrintLine("Session build time: {0}\n", b.SessionMillisecondsElapsed.ToTime());
-                PrintLine("Rebuild All: {0}\n", b.SolutionBuild.IsRebuildAll);
+                output.Write("[{0}] Time Elapsed: {1} \t\t", b.SessionBuildCount, b.SolutionBuildTime.ToTime());
+                output.WriteLine("Session build time: {0}\n", b.SessionMillisecondsElapsed.ToTime());
+                output.WriteLine("Rebuild All: {0}\n", b.SolutionBuild.IsRebuildAll);
                 System.Threading.Tasks.Task.Factory.StartNew(() => SaveToDatabase(b));
             };
 
-            monitor.ProjectBuildFinished = b => PrintLine(" - {0}\t-- {1} --", b.MillisecondsElapsed.ToTime(), b.ProjectName);
+            monitor.ProjectBuildFinished = b => output.WriteLine(" - {0}\t-- {1} --", b.MillisecondsElapsed.ToTime(), b.ProjectName);
         	AnalyseBuildTimesCommand.Initialize(this);
 		}
 
@@ -104,33 +105,9 @@ namespace BuildMonitorPackage
         private void Solution_Opened()
         {
             solution = new BuildMonitor.Domain.Solution { Name = GetSolutionName() };
-            PrintLine("\nSolution loaded:  \t{0}", solution.Name);
-            PrintLine("{0}", 60.Times("-"));
+            output.WriteLine("\nSolution loaded:  \t{0}", solution.Name);
+            output.WriteLine(new string('-', 60));
         }
-
-        #region Print to output window pane
-
-        private OutputWindowPane GetOutputWindowPane()
-        {
-            if (outputWindowPane == null)
-            {
-                var outputWindow = (OutputWindow)GetDTE().Windows.Item(EnvDTEConstants.vsWindowKindOutput).Object;
-                outputWindowPane = outputWindow.OutputWindowPanes.Add("Build monitor");
-            }
-            return outputWindowPane;
-        }
-
-        private void Print(string format, params object[] args)
-        {
-            GetOutputWindowPane().OutputString(string.Format(format, args));
-        }
-
-        private void PrintLine(string format, params object[] args)
-        {
-            Print(format + Environment.NewLine, args);
-        }
-
-        #endregion
 
         #region Get objects from vs
 

@@ -182,6 +182,7 @@
     <Compile Include="DataAdjusterWithLogging.cs" />
     <Compile Include="EnvDTEConstants.cs" />
     <Compile Include="Guids.cs" />
+    <Compile Include="OutputWindowWrapper.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

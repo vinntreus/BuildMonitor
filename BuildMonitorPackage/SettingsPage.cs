@@ -19,6 +19,9 @@ namespace BuildMonitorPackage
         {
             base.OnApply(args);
             Settings.Instance.RawRepositoryPath = RepositoryPath;
+
+            var output = new OutputWindowWrapper(ServiceProvider.GlobalProvider);
+            output.WriteLine("New path to persist data: {0}", Settings.Instance.RepositoryPath);
         }
     }
 }
