@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using BuildMonitor;
@@ -11,20 +12,22 @@ using Microsoft.VisualStudio.Shell;
 using System.Data.SqlClient;
 using System.Data;
 using System.Security.Principal;
-using System.Threading.Tasks;
+using Microsoft.VisualStudio.Settings;
+using Microsoft.VisualStudio.Shell.Settings;
 
 namespace BuildMonitorPackage
 {
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     [Guid(GuidList.guidBuildMonitorPackagePkgString)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
-    [ProvideAutoLoad("{f1536ef8-92ec-443c-9ed7-fdadf150da82}")]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
+    [ProvideOptionPage(typeof(SettingsPage), "Build Monitor", "General", 0, 0, true)]
     sealed class BuildMonitorPackage : Package, IVsUpdateSolutionEvents2
     {
         private DTE dte;
-        private readonly Monitor monitor;
-        private readonly DataAdjusterWithLogging dataAdjuster;
+        private Monitor monitor;
+        private DataAdjusterWithLogging dataAdjuster;
         private BuildMonitor.Domain.Solution solution;
 
         private IVsSolutionBuildManager2 sbm;
@@ -33,23 +36,23 @@ namespace BuildMonitorPackage
         private SolutionEvents events;
         private IVsSolution2 vsSolution;
 
-        public BuildMonitorPackage()
-        {
-            Settings.CreateApplicationFolderIfNotExist();
-
-            var factory = new BuildFactory();
-            var repository = new BuildRepository(Settings.RepositoryPath);
-
-            monitor = new Monitor(factory, repository);
-            dataAdjuster = new DataAdjusterWithLogging(repository, PrintLine);
-        }
-
         protected override void Initialize()
         {
             base.Initialize();
 
+            SettingsManager settingsManager = new ShellSettingsManager(ServiceProvider.GlobalProvider);
+            WritableSettingsStore settingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+            Settings.Instance = new Settings(settingsStore);
+
+            var factory = new BuildFactory();
+            var repository = new BuildRepository(Settings.Instance.RepositoryPath);
+
+            monitor = new Monitor(factory, repository);
+            dataAdjuster = new DataAdjusterWithLogging(repository, PrintLine);
+
             //if invalid data, adjust it
             dataAdjuster.Adjust();
+
 
             // Get solution build manager
             sbm = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager2;
@@ -64,7 +67,7 @@ namespace BuildMonitorPackage
             GetDTE().Events.BuildEvents.OnBuildBegin += Build_Begin;
 
             PrintLine("Build monitor initialized");
-            PrintLine("Path to persist data: {0}", Settings.RepositoryPath);
+            PrintLine("Path to persist data: {0}", Settings.Instance.RepositoryPath);
 
             monitor.SolutionBuildFinished = b =>
             {
