@@ -35,10 +35,10 @@ namespace BuildMonitorPackage
 
         public BuildMonitorPackage()
         {
-            Settings.CreateApplicationFolderIfNotExist();
+            Settings.CreateRepositoryPathIfNotExist();
 
             var factory = new BuildFactory();
-            var repository = new BuildRepository(Settings.RepositoryPath);
+            var repository = new BuildRepository(Settings.RepositoryFilename);
 
             monitor = new Monitor(factory, repository);
             dataAdjuster = new DataAdjusterWithLogging(repository, PrintLine);
@@ -64,7 +64,7 @@ namespace BuildMonitorPackage
             GetDTE().Events.BuildEvents.OnBuildBegin += Build_Begin;
 
             PrintLine("Build monitor initialized");
-            PrintLine("Path to persist data: {0}", Settings.RepositoryPath);
+            PrintLine("Path to persist data: {0}", Settings.RepositoryFilename);
 
             monitor.SolutionBuildFinished = b =>
             {
@@ -157,12 +157,12 @@ namespace BuildMonitorPackage
 
         private IProject GetProject(IVsHierarchy pHierProj)
         {
+            SetVsSolution();
             object n;
             pHierProj.GetProperty((uint)VSConstants.VSITEMID.Root, (int)__VSHPROPID.VSHPROPID_Name, out n);
             var name = n as string;
 
-            Guid id;
-            vsSolution.GetGuidOfProject(pHierProj, out id);
+            vsSolution.GetGuidOfProject(pHierProj, out Guid id);
 
             return new BuildMonitor.Domain.Project { Name = name, Id = id };
         }

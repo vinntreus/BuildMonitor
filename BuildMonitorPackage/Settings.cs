@@ -11,25 +11,35 @@ namespace BuildMonitorPackage
 
     public static class Settings
     {
-        public static string RepositoryPath = string.Format("{0}\\{1}\\{2}", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ApplicationFolderName, JsonFileName);
-
-        private static string ApplicationFolder = string.Format("{0}\\{1}", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ApplicationFolderName);
-
-        private const string ApplicationFolderName = "Build Monitor";
-        private const string JsonFileName = "buildtimes.json";
-        
-
-        public static void CreateApplicationFolderIfNotExist()
+        public static string RepositoryFilename
         {
-            if(!Directory.Exists(ApplicationFolder))
+            get =>
+                string.IsNullOrWhiteSpace(BuildMonitorRepositoryFilename)
+                    ? DefaultRepositoryFilename
+                    : BuildMonitorRepositoryFilename;
+        }
+
+        public static void CreateRepositoryPathIfNotExist()
+        {
+            if (!Directory.Exists(RepositoryPath))
             {
-                Directory.CreateDirectory(ApplicationFolder);
+                Directory.CreateDirectory(RepositoryPath);
             }
-            if(!File.Exists(RepositoryPath))
+            if (!File.Exists(RepositoryFilename))
             {
-                using(var f = File.Create(RepositoryPath)){}
+                File.Create(RepositoryFilename).Dispose();
             }
         }
+
+        static string RepositoryPath =>
+            Path.GetDirectoryName(RepositoryFilename);
+
+        static string BuildMonitorRepositoryFilename =>
+            Environment.GetEnvironmentVariable("BuildMonitorRepositoryFilename");
+
+        static string DefaultRepositoryFilename =>
+            $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\Build Monitor\\buildtimes.json";
+
     }
 }
 // ReSharper restore InconsistentNaming
