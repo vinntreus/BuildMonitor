@@ -18,10 +18,14 @@ build_script:
 
 test_script:
  # test and create coverage report.
- #- OpenCover.Console.exe -register:user -target:"nunit3-console.exe" -targetargs:"BuiltDlls\Debug\RES.Configuration.Test.dll" -output:"coverage.xml" -returntargetcode
- nunit-console.exe BuildMonitor.UnitTests\bin\BuildMonitor.UnitTests.dll
+ OpenCover.Console.exe -register:user -target:"nunit-console.exe" -targetargs:"nunit-console.exe BuildMonitor.UnitTests\bin\BuildMonitor.UnitTests.dll" -output:"coverage.xml" -returntargetcode
+ 
 after_test:
  # upload the code coverage to codcov.io
+ - ps: |
+      $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
+      Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
+      bash codecov.sh -f "coverage.xml"
  #- "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
  #- pip install codecov
  #- codecov -f "coverage.xml" -t %code_cov_token%
