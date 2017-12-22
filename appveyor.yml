@@ -30,4 +30,5 @@ after_test:
  #- pip install codecov
  #- codecov -f "coverage.xml" -t %code_cov_token%
 artifacts:
- - path: BuildMonitorPackage\obj\Release\BuildMonitorPackage.vsix
+- path: coverage.xml
+# - path: BuildMonitorPackage\obj\Release\BuildMonitorPackage.vsix
