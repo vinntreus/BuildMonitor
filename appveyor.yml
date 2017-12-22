@@ -19,7 +19,7 @@ build_script:
 test_script:
  # test and create coverage report.
  #- OpenCover.Console.exe -register:user -target:"nunit3-console.exe" -targetargs:"BuiltDlls\Debug\RES.Configuration.Test.dll" -output:"coverage.xml" -returntargetcode
- nunit3-console.exe BuildMonitor.UnitTests\obj\Release\BuildMonitor.UnitTests.dll
+ nunit-console.exe BuildMonitor.UnitTests\obj\Release\BuildMonitor.UnitTests.dll
 after_test:
  # upload the code coverage to codcov.io
  #- "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
