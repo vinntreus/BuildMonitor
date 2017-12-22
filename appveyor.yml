@@ -12,7 +12,7 @@ build_script:
  #- ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER) { SonarQube.Scanner.MSBuild.exe begin /k:"res.configuration"  /d:"sonar.host.url=https://sonarcloud.io" /d:"sonar.organization=res" /d:"sonar.login=a8e51e7eccb2eaa68c5f8d3c50e827ee2a0fa545" /d:sonar.verbose=false /d:"sonar.analysis.mode=preview" /d:"sonar.github.pullRequest=$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:"sonar.github.repository=resgroup/configuration" /d:"sonar.github.oauth=$env:github_token" /d:sonar.cs.opencover.it.reportsPaths=coverage.xml }
  #- ps: if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) { SonarQube.Scanner.MSBuild.exe begin /k:"res.configuration"  /d:"sonar.host.url=https://sonarcloud.io" /d:"sonar.organization=res" /d:"sonar.login=a8e51e7eccb2eaa68c5f8d3c50e827ee2a0fa545" /d:sonar.verbose=false /d:sonar.cs.opencover.it.reportsPaths=coverage.xml }
  #- SonarQube.Scanner.MSBuild.exe begin /k:"res.configuration"  /d:"sonar.host.url=https://sonarcloud.io" /d:"sonar.organization=res" /d:"sonar.login=a8e51e7eccb2eaa68c5f8d3c50e827ee2a0fa545" /d:sonar.verbose=false
- - msbuild BuildMonitor.sln /p:IncludeSymbols=true /verbosity:quiet /p:Configuration=Release
+ - msbuild BuildMonitor.sln /p:IncludeSymbols=true /verbosity:quiet /p:Configuration=Debug
  #- msbuild RES.Configuration.Test\RES.Configuration.Test.csproj  /nowarn:1125 /verbosity:quiet
  #- SonarQube.Scanner.MSBuild.exe end /d:"sonar.login=a8e51e7eccb2eaa68c5f8d3c50e827ee2a0fa545"
 
@@ -30,4 +30,5 @@ after_test:
  #- pip install codecov
  #- codecov -f "coverage.xml" -t %code_cov_token%
 artifacts:
- - path: BuildMonitorPackage\obj\Release\BuildMonitorPackage.vsix
+- path: coverage.xml
+# - path: BuildMonitorPackage\obj\Release\BuildMonitorPackage.vsix
