@@ -101,7 +101,7 @@ namespace BuildMonitorPackage
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            var form = new AnalyseBuildTimes(new BuildMonitor.LocalData.AnalyseBuildTimes().Calculate(File.ReadAllText(Settings.RepositoryFilename)).SolutionMonthTable());
+            var form = new AnalyseBuildTimes(new BuildMonitor.LocalData.AnalyseBuildTimes().Calculate(File.ReadAllText(Settings.Instance.RepositoryPath)).SolutionMonthTable());
 
             form.ShowDialog();
         }
