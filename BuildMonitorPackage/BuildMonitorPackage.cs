@@ -13,31 +13,37 @@ using System.Data;
 using System.Security.Principal;
 using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell.Settings;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BuildMonitorPackage
 {
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     [Guid(GuidList.guidBuildMonitorPackagePkgString)]
-    [PackageRegistration(UseManagedResourcesOnly = true)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string)]
+    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideOptionPage(typeof(SettingsPage), "Build Monitor", "General", 0, 0, true)]
-    sealed class BuildMonitorPackage : Package, IVsUpdateSolutionEvents2
+    sealed class BuildMonitorPackage : AsyncPackage, IVsUpdateSolutionEvents2
     {
-        private DTE dte;
-        private Monitor monitor;
-        private DataAdjusterWithLogging dataAdjuster;
-        private BuildMonitor.Domain.Solution solution;
+        DTE dte;
+        BuildMonitor.Domain.Monitor monitor;
+        DataAdjusterWithLogging dataAdjuster;
+        BuildMonitor.Domain.Solution solution;
 
-        private IVsSolutionBuildManager2 sbm;
-        private uint updateSolutionEventsCookie;
-        private SolutionEvents events;
-        private IVsSolution2 vsSolution;
-        private OutputWindowWrapper output;
+        IVsSolutionBuildManager2 sbm;
+        uint updateSolutionEventsCookie;
+        SolutionEvents events;
+        IVsSolution2 vsSolution;
+        OutputWindowWrapper output;
 
-        protected override void Initialize()
+        protected override async System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            base.Initialize();
+            // Switches to the UI thread, which most of this package requires. Even joining the main thread here improves 
+            // the load time of the package, and it stops a warning popping up when you load vs2019 with the package installed.
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
+            await base.InitializeAsync(cancellationToken, progress);
 
             output = new OutputWindowWrapper(this);
 
@@ -48,7 +54,7 @@ namespace BuildMonitorPackage
             var factory = new BuildFactory();
             var repository = new BuildRepository(Settings.Instance.RepositoryPath);
 
-            monitor = new Monitor(factory, repository);
+            monitor = new BuildMonitor.Domain.Monitor(factory, repository);
             dataAdjuster = new DataAdjusterWithLogging(repository, output.WriteLine);
 
             //if invalid data, adjust it
@@ -75,14 +81,23 @@ namespace BuildMonitorPackage
                 output.Write("[{0}] Time Elapsed: {1} \t\t", b.SessionBuildCount, b.SolutionBuildTime.ToTime());
                 output.WriteLine("Session build time: {0}\n", b.SessionMillisecondsElapsed.ToTime());
                 output.WriteLine("Rebuild All: {0}\n", b.SolutionBuild.IsRebuildAll);
-                //System.Threading.Tasks.Task.Factory.StartNew(() => SaveToDatabase(b));
+               // System.Threading.Tasks.Task.Factory.StartNew(() => SaveToDatabase(b));
             };
 
             monitor.ProjectBuildFinished = b => output.WriteLine(" - {0}\t-- {1} --", b.MillisecondsElapsed.ToTime(), b.ProjectName);
-        	AnalyseBuildTimesCommand.Initialize(this);
-		}
+            AnalyseBuildTimesCommand.Initialize(this);
+        }
 
-        //private void SaveToDatabase(SolutionBuildData b)
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            // Unadvise all events
+            if (sbm != null && updateSolutionEventsCookie != 0)
+                sbm.UnadviseUpdateSolutionEvents(updateSolutionEventsCookie);
+        }
+
+        //void SaveToDatabase(SolutionBuildData b)
         //{
         //    try
         //    {
@@ -102,7 +117,7 @@ namespace BuildMonitorPackage
         //    { }
         //}
 
-        private void Solution_Opened()
+        void Solution_Opened()
         {
             solution = new BuildMonitor.Domain.Solution { Name = GetSolutionName() };
             output.WriteLine("\nSolution loaded:  \t{0}", solution.Name);
@@ -111,7 +126,7 @@ namespace BuildMonitorPackage
 
         #region Get objects from vs
 
-        private DTE GetDTE()
+        DTE GetDTE()
         {
             if (dte == null)
             {
@@ -121,13 +136,13 @@ namespace BuildMonitorPackage
             return dte;
         }
 
-        private void SetVsSolution()
+        void SetVsSolution()
         {
             if (vsSolution == null)
                 vsSolution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution2;
         }
 
-        private string GetSolutionName()
+        string GetSolutionName()
         {
             SetVsSolution();
             object solutionName;
@@ -135,7 +150,7 @@ namespace BuildMonitorPackage
             return (string)solutionName;
         }
 
-        private IProject GetProject(IVsHierarchy pHierProj)
+        IProject GetProject(IVsHierarchy pHierProj)
         {
             SetVsSolution();
             object n;
@@ -150,7 +165,7 @@ namespace BuildMonitorPackage
         #endregion
 
         // this event is called on build begin and let's us find out whether it is a full rebuild or a partial
-        private void Build_Begin(vsBuildScope scope, vsBuildAction action)
+        void Build_Begin(vsBuildScope scope, vsBuildAction action)
         {
             monitor.SetIsRebuildAll(action == vsBuildAction.vsBuildActionRebuildAll);
         }
@@ -189,57 +204,33 @@ namespace BuildMonitorPackage
             return VSConstants.S_OK;
         }
 
-        #region empty impl. of solution events interface
+        #region empty impl. of solution events interface, good example of Interface Segregation Principle violation
 
-        int IVsUpdateSolutionEvents2.UpdateSolution_StartUpdate(ref int pfCancelUpdate)
-        {
-            return VSConstants.S_OK;
-        }
+        int IVsUpdateSolutionEvents2.UpdateSolution_StartUpdate(ref int pfCancelUpdate) =>
+            VSConstants.S_OK;
 
-        int IVsUpdateSolutionEvents2.UpdateSolution_Cancel()
-        {
-            return VSConstants.S_OK;
-        }
+        int IVsUpdateSolutionEvents2.UpdateSolution_Cancel() =>
+            VSConstants.S_OK;
 
-        int IVsUpdateSolutionEvents2.OnActiveProjectCfgChange(IVsHierarchy pIVsHierarchy)
-        {
-            return VSConstants.S_OK;
-        }
+        int IVsUpdateSolutionEvents2.OnActiveProjectCfgChange(IVsHierarchy pIVsHierarchy) =>
+            VSConstants.S_OK;
 
-        int IVsUpdateSolutionEvents2.UpdateSolution_Begin(ref int pfCancelUpdate)
-        {
-            return VSConstants.S_OK;
-        }
+        int IVsUpdateSolutionEvents2.UpdateSolution_Begin(ref int pfCancelUpdate) =>
+            VSConstants.S_OK;
 
-        int IVsUpdateSolutionEvents2.UpdateSolution_Done(int fSucceeded, int fModified, int fCancelCommand)
-        {
-            return VSConstants.S_OK;
-        }
+        int IVsUpdateSolutionEvents2.UpdateSolution_Done(int fSucceeded, int fModified, int fCancelCommand) =>
+            VSConstants.S_OK;
 
-        int IVsUpdateSolutionEvents.UpdateSolution_StartUpdate(ref int pfCancelUpdate)
-        {
-            return VSConstants.S_OK;
-        }
+        int IVsUpdateSolutionEvents.UpdateSolution_StartUpdate(ref int pfCancelUpdate) =>
+            VSConstants.S_OK;
 
-        int IVsUpdateSolutionEvents.UpdateSolution_Cancel()
-        {
-            return VSConstants.S_OK;
-        }
+        int IVsUpdateSolutionEvents.UpdateSolution_Cancel() =>
+            VSConstants.S_OK;
 
-        int IVsUpdateSolutionEvents.OnActiveProjectCfgChange(IVsHierarchy pIVsHierarchy)
-        {
-            return VSConstants.S_OK;
-        }
+        int IVsUpdateSolutionEvents.OnActiveProjectCfgChange(IVsHierarchy pIVsHierarchy) =>
+            VSConstants.S_OK;
 
         #endregion
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            // Unadvise all events
-            if (sbm != null && updateSolutionEventsCookie != 0)
-                sbm.UnadviseUpdateSolutionEvents(updateSolutionEventsCookie);
-        }
     }
 }

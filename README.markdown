@@ -4,7 +4,10 @@
 
 Measures build times in Visual Studio.
 
-This is a fork of the original, that adds an IsRebuildAll flag and a form showing the breakdown by month and solution (under `Tools - Show Solution Build Times`). There is now an option to choose the location of the json file where the results are saved.
+This is a fork of the original, that adds the following:
+- An IsRebuildAll flag
+- A form showing the breakdown by month and solution (under `Tools - Show Solution Build Times`)
+- An option to choose the location of the json file where the results are saved
 
 ## To install
 
