@@ -18,7 +18,7 @@ build_script:
 
 test_script:
  # test and create coverage report.
- OpenCover.Console.exe -register:user -target:"nunit-console.exe" -targetargs:"BuildMonitor.UnitTests\bin\BuildMonitor.UnitTests.dll" -output:"coverage.xml" -returntargetcode
+ OpenCover.Console.exe -register:user -target:"nunit3-console" -targetargs:"BuildMonitor.UnitTests\bin\BuildMonitor.UnitTests.dll --result=myresults.xml;format=AppVeyor" -output:"coverage.xml" -returntargetcode
  
 after_test:
  # upload the code coverage to codcov.io
