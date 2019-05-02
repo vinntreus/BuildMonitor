@@ -81,18 +81,25 @@ namespace BuildMonitorPackage
                 output.Write("[{0}] Time Elapsed: {1} \t\t", b.SessionBuildCount, b.SolutionBuildTime.ToTime());
                 output.WriteLine("Session build time: {0}\n", b.SessionMillisecondsElapsed.ToTime());
                 output.WriteLine("Rebuild All: {0}\n", b.SolutionBuild.IsRebuildAll);
-               // System.Threading.Tasks.Task.Factory.StartNew(() => SaveToDatabase(b));
+                //System.Threading.Tasks.Task.Factory.StartNew(() => SaveToDatabase(b));
             };
 
             monitor.ProjectBuildFinished = b => output.WriteLine(" - {0}\t-- {1} --", b.MillisecondsElapsed.ToTime(), b.ProjectName);
+
+            // In vs 2017 and earlier, this event was always called, but in 2019 it isn't called if you open a solution on startup.
+            // I imagine this is because the solution has already loaded before we connect to the events. To get over it we just
+            // manually call the event here.
+            Solution_Opened();
+
             AnalyseBuildTimesCommand.Initialize(this);
         }
 
         protected override void Dispose(bool disposing)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             base.Dispose(disposing);
 
-            // Unadvise all events
             if (sbm != null && updateSolutionEventsCookie != 0)
                 sbm.UnadviseUpdateSolutionEvents(updateSolutionEventsCookie);
         }
@@ -101,20 +108,45 @@ namespace BuildMonitorPackage
         //{
         //    try
         //    {
-        //        var conn = new SqlConnection("Server=kl-sql-005;DataBase=RESSoftware;Integrated Security=SSPI");
-        //        conn.Open();
-        //        SqlCommand cmd = new SqlCommand("dbo.AddBuildTime", conn);
-        //        cmd.Parameters.AddWithValue("IsRebuildAll", b.SolutionBuild.IsRebuildAll ? 1 : 0);
-        //        cmd.Parameters.AddWithValue("SolutionName", b.SolutionName);
-        //        cmd.Parameters.AddWithValue("BuildDateTime", DateTime.Now);
-        //        cmd.Parameters.AddWithValue("TimeInMilliseconds", b.SolutionBuildTime);
-        //        cmd.Parameters.AddWithValue("NT4Name", WindowsIdentity.GetCurrent().Name);
-        //        cmd.CommandType = CommandType.StoredProcedure;
-        //        cmd.ExecuteNonQuery();
+        //        output.WriteLine($"SaveToDatabase starting: IsRebuildAll: {(b.SolutionBuild.IsRebuildAll ? 1 : 0)}, SolutionName: {b.SolutionName}, BuildDateTime: {DateTime.Now}, TimeInMilliseconds: {b.SolutionBuildTime}, NT4Name: {WindowsIdentity.GetCurrent().Name}");
+
+        //        TrySaveToDatabase(b);
+
+        //        output.WriteLine("SaveToDatabase completed");
+        //    }
+        //    catch (Exception exception)// ignore exceptions, its not a big problem if we can't log the build time
+        //    {
+        //        output.WriteLine($"Exception while writing to database: {exception}");
+        //    }
+        //}
+
+        //void TrySaveToDatabase(SolutionBuildData b)
+        //{
+        //    var conn = new SqlConnection("Server=kl-sql-005;DataBase=RESSoftware;Integrated Security=SSPI");
+
+        //    conn.Open();
+        //    try
+        //    {
+        //        TryExecuteAddBuildTime(b, conn);
+        //    }
+        //    finally
+        //    {
         //        if (conn != null) conn.Close();
         //    }
-        //    catch // ignore exceptions, its not a big problem if we can't log the build time
-        //    { }
+        //}
+
+        //static void TryExecuteAddBuildTime(SolutionBuildData b, SqlConnection conn)
+        //{
+        //    var cmd = new SqlCommand("dbo.AddBuildTime", conn);
+
+        //    cmd.Parameters.AddWithValue("IsRebuildAll", b.SolutionBuild.IsRebuildAll ? 1 : 0);
+        //    cmd.Parameters.AddWithValue("SolutionName", b.SolutionName ?? "");
+        //    cmd.Parameters.AddWithValue("BuildDateTime", DateTime.Now);
+        //    cmd.Parameters.AddWithValue("TimeInMilliseconds", b.SolutionBuildTime);
+        //    cmd.Parameters.AddWithValue("NT4Name", WindowsIdentity.GetCurrent().Name);
+        //    cmd.CommandType = CommandType.StoredProcedure;
+
+        //    cmd.ExecuteNonQuery();
         //}
 
         void Solution_Opened()
@@ -138,6 +170,8 @@ namespace BuildMonitorPackage
 
         void SetVsSolution()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (vsSolution == null)
                 vsSolution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution2;
         }
@@ -152,6 +186,8 @@ namespace BuildMonitorPackage
 
         IProject GetProject(IVsHierarchy pHierProj)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             SetVsSolution();
             object n;
             pHierProj.GetProperty((uint)VSConstants.VSITEMID.Root, (int)__VSHPROPID.VSHPROPID_Name, out n);

@@ -11,12 +11,12 @@ namespace BuildMonitor.Domain
 
         public string SolutionName
         {
-            get { return SolutionBuild.Solution.Name; }
+            get { return SolutionBuild?.Solution?.Name; }
         }
 
         public long SolutionBuildTime
         {
-            get { return SolutionBuild.MillisecondsElapsed; }
+            get { return SolutionBuild?.MillisecondsElapsed ?? int.MaxValue; }
         }
 
         public ISolutionBuild SolutionBuild { get; }
