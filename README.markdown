@@ -5,6 +5,7 @@
 Measures build times in Visual Studio.
 
 This is a fork of the original, that adds the following:
+- Support for Visual Studio 2019
 - An IsRebuildAll flag
 - A form showing the breakdown by month and solution (under `Tools - Show Solution Build Times`)
 - An option to choose the location of the json file where the results are saved
